@@ -37,7 +37,10 @@ function Crypto() {
   }
 
   const [livePrices, setLivePrices] = useState({}); // to store live prices
-  const [priceUpdate, setPriceUpdate] = useState(null); // to store price update
+  const [priceUpdate, setPriceUpdate] = useState<{
+    symbol: string;
+    price: number;
+  } | null>(null);
 
   // handle price update
   useEffect(() => {
@@ -63,8 +66,15 @@ function Crypto() {
     );
   }
 
+  type PositionType = {
+    positionAmt: number;
+    symbol: string;
+    position: string;
+    // ostale vrednosti koje mogu postojati na `position` objektu
+  };
+
   const filteredPositions = position.filter(
-    (position) => position.positionAmt != 0
+    (position: PositionType) => position.positionAmt != 0
   );
 
   return (
@@ -85,16 +95,18 @@ function Crypto() {
             <div className="flex-grow flex-shrink-0 basis-24">Margin</div>
             <div className="flex-grow flex-shrink-0 basis-20">PNL (ROE %)</div>
           </div>
-          {filteredPositions.map((position, index) => (
-            <PositionRow
-              key={position.symbol}
-              position={position}
-              index={index}
-              livePrices={livePrices}
-              account={account}
-              exchangeInfo={exchangeInfo}
-            />
-          ))}
+          {position
+            .filter((position: PositionType) => position.positionAmt != 0)
+            .map((position: PositionType, index: number) => (
+              <PositionRow
+                key={position.symbol}
+                position={position}
+                index={index}
+                livePrices={livePrices}
+                account={account}
+                exchangeInfo={exchangeInfo}
+              />
+            ))}
         </div>
       </div>
     </div>
