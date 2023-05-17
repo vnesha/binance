@@ -3,7 +3,10 @@ import { useState, useEffect, Fragment } from "react";
 import { useCryptoPositions } from "../hooks/usePositions";
 import { useAccount } from "../hooks/useAccount";
 import { useExchangeInfo } from "../hooks/useExchangeInfo";
-import PositionRow from "../../components/positionRow";
+import PositionRow from "@/components/positionRow";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PositionHeader } from "@/components/positionHeader";
+
 // tailwindcss: text-green text-red bg-green bg-red
 
 function Crypto() {
@@ -37,7 +40,7 @@ function Crypto() {
   }
 
   const [livePrices, setLivePrices] = useState({}); // to store live prices
-  const [priceUpdate, setPriceUpdate] = useState<{
+  const [priceUpdate] = useState<{
     symbol: string;
     price: number;
   } | null>(null);
@@ -51,10 +54,6 @@ function Crypto() {
       }));
     }
   }, [priceUpdate]);
-
-  // const handlePriceUpdate = useCallback((symbol, price) => {
-  //   setPriceUpdate({ symbol, price });
-  // }, []);
 
   if (positionLoading || accountLoading || exchangeInfoLoading) {
     return (
@@ -79,36 +78,33 @@ function Crypto() {
 
   return (
     <div className="pl-4 pr-4">
-      <div className="tabs flex flex-row items-center h-10 ">
-        <div className="font-medium text-sm text-yellow">{`Positions(${filteredPositions.length})`}</div>
-        <div className="font-medium text-sm ml-4">Open Orders(1)</div>
-      </div>
-      <div className="sm: overflow-auto">
-        <div className="table w-full">
-          <div className="flex flex-row text-gray-light text-xs h-8 items-center">
-            <div className="flex-grow flex-shrink-0 basis-28">Symbol</div>
-            <div className="flex-grow flex-shrink-0 basis-20">Size</div>
-            <div className="flex-grow flex-shrink-0 basis-20">Entry Price</div>
-            <div className="flex-grow flex-shrink-0 basis-20">Mark Price</div>
-            <div className="flex-grow flex-shrink-0 basis-20">Liq.Price</div>
-            <div className="flex-grow flex-shrink-0 basis-20">Margin Ratio</div>
-            <div className="flex-grow flex-shrink-0 basis-24">Margin</div>
-            <div className="flex-grow flex-shrink-0 basis-20">PNL (ROE %)</div>
+      <Tabs defaultValue="position">
+        <TabsList>
+          <TabsTrigger value="position">{`Positions(${filteredPositions.length})`}</TabsTrigger>
+          <TabsTrigger value="open-orders">Open Orders</TabsTrigger>
+        </TabsList>
+        <TabsContent value="position">
+          <div className="table w-full">
+            <PositionHeader />
+            {position
+              .filter((position: PositionType) => position.positionAmt != 0)
+              .map((position: PositionType, index: number) => (
+                <PositionRow
+                  key={position.symbol}
+                  position={position}
+                  index={index}
+                  livePrices={livePrices}
+                  account={account}
+                  exchangeInfo={exchangeInfo}
+                />
+              ))}
           </div>
-          {position
-            .filter((position: PositionType) => position.positionAmt != 0)
-            .map((position: PositionType, index: number) => (
-              <PositionRow
-                key={position.symbol}
-                position={position}
-                index={index}
-                livePrices={livePrices}
-                account={account}
-                exchangeInfo={exchangeInfo}
-              />
-            ))}
-        </div>
-      </div>
+        </TabsContent>
+        <TabsContent value="open-orders">
+          <PositionHeader />
+          empty
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
