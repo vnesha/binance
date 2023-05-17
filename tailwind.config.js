@@ -6,12 +6,23 @@ module.exports = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    colors: {
+      red: '#F6475D',
+      green: '#0DCB81',
+      orange: '#D77843',
+      yellow: '#f0b90b',
+      black: '#000000',
+      white: '#ffffff',
+      gray: '#252930',
+      'gray-light': '#848e9c',
+    },
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
+      // fontSize: {
+      //   sm: ['12px', '16px'],
+      // },
+      fontFamily: {
+        sans: ['IntIBMPlexSans', 'sans'],
+      }
     },
   },
   plugins: [],

@@ -2,26 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+@layer base {
+  @font-face {
+    font-family: "IBMPlexSans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../public/fonts/IBMPlexSans-Regular.ttf") format("truetype");
+  }
+  @font-face {
+    font-family: "IBMPlexSans";
+    font-style: medium;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../public/fonts/IBMPlexSans-Medium.ttf") format("truetype");
+  }
+  @font-face {
+    font-family: "IBMPlexSans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../public/fonts/IBMPlexSans-Bold.ttf") format("truetype");
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+:root {
+  --theme-color-primary: rgb(22, 26, 30);
+  --theme-color-secondary: rgb(183, 189, 198);;
 }
+
+body {
+  background-color: var(--theme-color-primary);
+  color: var(--theme-color-secondary);  
+  font-family: "IBMPlexSans";
+  overflow-x: hidden!important;
+ }
