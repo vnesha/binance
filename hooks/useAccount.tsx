@@ -1,6 +1,10 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { fetchData } from "./fetchData";
 
+type AccountType = {
+  asset: string;
+};
+
 export function useAccount(): UseQueryResult<any, Error | null> {
   return useQuery({
     queryKey: ["account"],
@@ -10,7 +14,7 @@ export function useAccount(): UseQueryResult<any, Error | null> {
           "https://fapi.binance.com/fapi/v2/account"
         );
         const usdtAsset = account.assets.find(
-          (asset) => asset.asset === "USDT"
+          (asset: AccountType) => asset.asset === "USDT"
         );
 
         if (!usdtAsset) {

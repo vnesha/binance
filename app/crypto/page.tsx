@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, Fragment } from "react";
-import { useCryptoPositions } from "../hooks/usePositions";
-import { useAccount } from "../hooks/useAccount";
-import { useExchangeInfo } from "../hooks/useExchangeInfo";
+import { useCryptoPositions } from "../../hooks/usePositions";
+import { useAccount } from "../../hooks/useAccount";
+import { useExchangeInfo } from "../../hooks/useExchangeInfo";
 import PositionRow from "@/components/positionRow";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PositionHeader } from "@/components/positionHeader";
@@ -69,7 +69,6 @@ function Crypto() {
     positionAmt: number;
     symbol: string;
     position: string;
-    // ostale vrednosti koje mogu postojati na `position` objektu
   };
 
   const filteredPositions = position.filter(

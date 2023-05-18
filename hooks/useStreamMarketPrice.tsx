@@ -1,9 +1,12 @@
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useEffect, useState } from "react";
-import { formatNumber } from "../../util/formatingNumber";
+import { formatNumber } from "../util/formatingNumber";
 
-export const useStreamMarketPrice = (positionSymbol, onPriceUpdate) => {
-  const [socketError, setSocketError] = useState(null);
+export const useStreamMarketPrice = (
+  positionSymbol: string, // samo string, ne objekat
+  onPriceUpdate: (symbol: string, price: number) => void // funkcija koja prihvata dva argumenta
+) => {
+  const [socketError, setSocketError] = useState<Error | null>(null);
 
   const {
     lastMessage: lastTradeMessage,
@@ -27,7 +30,7 @@ export const useStreamMarketPrice = (positionSymbol, onPriceUpdate) => {
     }
   );
 
-  let price;
+  let price: number | null = null;
 
   if (tradeReadyState === ReadyState.OPEN && lastTradeMessage) {
     price = parseFloat(JSON.parse(lastTradeMessage.data)["p"]);
@@ -43,7 +46,8 @@ export const useStreamMarketPrice = (positionSymbol, onPriceUpdate) => {
     const socket = getWebSocket();
 
     if (socket) {
-      const handleError = (event) => {
+      const handleError = (event: Event) => {
+        console.log(event);
         setSocketError(new Error("An error occurred with the WebSocket."));
       };
 
@@ -58,12 +62,19 @@ export const useStreamMarketPrice = (positionSymbol, onPriceUpdate) => {
   return { livePrice: price, socketError };
 };
 
+interface StreamMarketPriceProps {
+  symbol: string;
+  onPriceUpdate: (symbol: string, price: number) => void;
+  quoteAsset: string;
+  pricePrecision: number;
+}
+
 function StreamMarketPrice({
   symbol,
   onPriceUpdate,
   quoteAsset,
   pricePrecision,
-}) {
+}: StreamMarketPriceProps) {
   const { livePrice, socketError } = useStreamMarketPrice(
     symbol,
     onPriceUpdate

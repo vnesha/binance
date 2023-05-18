@@ -25,7 +25,7 @@ export function formatNumber(
   }
 }
 
-export function addTextClass(number) {
+export function addTextClass(number: number) {
   let parsedNumber;
 
   // Provera da li je number string koji se može pretvoriti u broj
@@ -51,7 +51,7 @@ export function addTextClass(number) {
   }
 }
 
-export function addBgClass(number) {
+export function addBgClass(number: number) {
   let parsedNumber;
 
   // Provera da li je number string koji se može pretvoriti u broj
