@@ -18,14 +18,36 @@ type PositionType = {
   positionAmt: string;
   price: string;
   positionSymbol: string;
-  livePrice: number | null;
+  livePrice: string | null;
   markPrice: string;
+  unrealizedProfit: number;
+  entryPrice: string;
 };
 
 const queryOptions: any = {
   refetchOnWindowFocus: true,
   refetchOnReconnect: true,
   staleTime: 1000,
+};
+
+const calculateUnrealizedProfit = (
+  livePrice: string | null,
+  position: PositionType | undefined
+): number => {
+  if (
+    livePrice === null ||
+    !position ||
+    isNaN(Number(livePrice)) ||
+    isNaN(Number(position.positionAmt)) ||
+    isNaN(Number(position.entryPrice))
+  ) {
+    return 0;
+  }
+
+  return (
+    Number(position.positionAmt) *
+    (parseFloat(livePrice) - Number(position.entryPrice))
+  );
 };
 
 export const usePositionData = () => {
@@ -50,7 +72,7 @@ export const usePositionData = () => {
           }
           return oldData.map((item) =>
             item.symbol === currentSymbol
-              ? { ...item, livePrice: parseFloat(message.p) }
+              ? { ...item, livePrice: message.p }
               : item
           );
         });
@@ -89,18 +111,32 @@ export const usePositionData = () => {
 
       const initialCombinedData = filteredAccount.map(
         (account: AccountType) => {
-          const correspondingPosition = filteredPositions.find(
+          const position = filteredPositions.find(
             (position: PositionType) => position.symbol === account.symbol
           );
+
+          let livePrice: string | null = position?.markPrice || null;
+          if (lastJsonMessage) {
+            const message = lastJsonMessage as BinanceResponse;
+            if (message.s && message.s.toUpperCase() === position?.symbol) {
+              livePrice = message.p || null;
+            }
+          }
+
+          const unrealizedProfit = calculateUnrealizedProfit(
+            livePrice,
+            position
+          );
+
           return {
             ...account,
-            ...correspondingPosition,
-            livePrice: correspondingPosition
-              ? parseFloat(correspondingPosition.markPrice)
-              : null,
+            ...position,
+            livePrice,
+            unrealizedProfit,
           };
         }
       );
+
       setCombinedData(initialCombinedData);
 
       // Set up a WebSocket for each symbol
@@ -136,9 +172,11 @@ export const usePositionData = () => {
                 item.symbol === currentSymbol
                   ? {
                       ...item,
-                      livePrice: message.p
-                        ? parseFloat(message.p)
-                        : parseFloat(item.markPrice),
+                      livePrice: message.p || item.livePrice,
+                      unrealizedProfit: calculateUnrealizedProfit(
+                        message.p,
+                        item
+                      ),
                     }
                   : item
               );
@@ -156,7 +194,7 @@ export const usePositionData = () => {
         }
       });
     };
-  }, [positions.data, account.data]);
+  }, [positions.data, account.data, lastJsonMessage]);
 
   return { combinedData };
 };

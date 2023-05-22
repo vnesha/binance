@@ -6,8 +6,9 @@ type CombinedDataType = {
   positionAmt: string;
   price: string;
   positionSymbol: string;
-  livePrice: number | null;
+  livePrice: string | null;
   initialMargin?: string;
+  unrealizedProfit: number;
 };
 
 function Test() {
@@ -21,6 +22,7 @@ function Test() {
           <p>Initial Margin: {data.initialMargin}</p>
           <p>Position Amount: {data.positionAmt}</p>
           <p>Live Price: {data.livePrice}</p>
+          <p>Live Price: {data.unrealizedProfit}</p>
         </div>
       ))}
     </div>
