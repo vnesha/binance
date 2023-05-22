@@ -1,14 +1,11 @@
 import useWebSocket, { ReadyState } from "react-use-websocket";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "./fetchData";
 
 type BinanceResponse = {
-  e: string;
-  E: number;
   s: string;
   p: string;
-  q: string;
 };
 
 type AccountType = {
@@ -22,6 +19,7 @@ type PositionType = {
   price: string;
   positionSymbol: string;
   livePrice: number | null;
+  markPrice: string;
 };
 
 const queryOptions: any = {
@@ -32,29 +30,24 @@ const queryOptions: any = {
 
 export const usePositionData = () => {
   const [combinedData, setCombinedData] = useState<PositionType[]>([]);
-  const [socketUrl, setSocketUrl] = useState<string | null>(null);
-  const { lastJsonMessage, readyState } = useWebSocket(socketUrl, {
+  const { lastJsonMessage, readyState } = useWebSocket(null, {
     shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 10,
     reconnectInterval: 3000,
   });
 
-  //console.log("WebSocket ReadyState", ReadyState[readyState]);
+  // Koristite useRef umesto obične promenljive
+  const symbolToWebSocket = useRef<{ [symbol: string]: WebSocket }>({});
 
   useEffect(() => {
     if (lastJsonMessage) {
-      //console.log("Raw WebSocket message:", lastJsonMessage);
-
       const message = lastJsonMessage as BinanceResponse;
       if (message.s) {
         const currentSymbol = message.s.toUpperCase();
-        //console.log("Processed WebSocket message:", currentSymbol, message.p);
-
         setCombinedData((oldData) => {
           if (!oldData) {
             return [];
           }
-
           return oldData.map((item) =>
             item.symbol === currentSymbol
               ? { ...item, livePrice: parseFloat(message.p) }
@@ -80,9 +73,6 @@ export const usePositionData = () => {
   const positions = useQuery(["position"], urlPosition, queryOptions);
   const account = useQuery(["account"], urlAccount, queryOptions);
 
-  // Create a mapping from symbol to WebSocket
-  const symbolToWebSocket: { [symbol: string]: WebSocket } = {};
-
   useEffect(() => {
     if (positions.data && account.data) {
       const filteredPositions = positions.data.filter(
@@ -98,46 +88,58 @@ export const usePositionData = () => {
       );
 
       const initialCombinedData = filteredAccount.map(
-        (account: AccountType) => ({
-          ...account,
-          ...filteredPositions.find(
+        (account: AccountType) => {
+          const correspondingPosition = filteredPositions.find(
             (position: PositionType) => position.symbol === account.symbol
-          ),
-        })
+          );
+          return {
+            ...account,
+            ...correspondingPosition,
+            livePrice: correspondingPosition
+              ? parseFloat(correspondingPosition.markPrice)
+              : null,
+          };
+        }
       );
-
       setCombinedData(initialCombinedData);
 
       // Set up a WebSocket for each symbol
       filteredSymbols.forEach((symbol: string) => {
         const url = `wss://fstream.binance.com/ws/${symbol.toLowerCase()}@trade`;
 
-        if (symbolToWebSocket[symbol]) {
-          symbolToWebSocket[symbol].close();
+        // Koristite symbolToWebSocket.current umesto symbolToWebSocket
+        if (
+          symbolToWebSocket.current[symbol] &&
+          symbolToWebSocket.current[symbol].readyState === WebSocket.OPEN
+        ) {
+          symbolToWebSocket.current[symbol].close();
         }
 
         const ws = new WebSocket(url);
-        symbolToWebSocket[symbol] = ws;
+        // Koristite symbolToWebSocket.current umesto symbolToWebSocket
+        symbolToWebSocket.current[symbol] = ws;
+
+        ws.onerror = (error) => {
+          console.error(`WebSocket error: ${error}`);
+        };
 
         ws.onmessage = (event) => {
           const message = JSON.parse(event.data) as BinanceResponse;
 
           if (message.s) {
             const currentSymbol = message.s.toUpperCase();
-            // console.log(
-            //   "Processed WebSocket message:",
-            //   currentSymbol,
-            //   message.p
-            // );
-
             setCombinedData((oldData) => {
               if (!oldData) {
                 return [];
               }
-
               return oldData.map((item) =>
                 item.symbol === currentSymbol
-                  ? { ...item, livePrice: parseFloat(message.p) }
+                  ? {
+                      ...item,
+                      livePrice: message.p
+                        ? parseFloat(message.p)
+                        : parseFloat(item.markPrice),
+                    }
                   : item
               );
             });
@@ -145,6 +147,15 @@ export const usePositionData = () => {
         };
       });
     }
+
+    // Cleanup function to close all WebSockets when the component unmounts or dependencies change
+    return () => {
+      Object.values(symbolToWebSocket.current).forEach((ws) => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+      });
+    };
   }, [positions.data, account.data]);
 
   return { combinedData };
