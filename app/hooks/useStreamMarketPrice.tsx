@@ -1,6 +1,6 @@
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useEffect, useState } from "react";
-import { formatNumber } from "../util/formatingNumber";
+import { formatNumber } from "../../util/formatingNumber";
 
 export const useStreamMarketPrice = (
   positionSymbol: string, // samo string, ne objekat
@@ -67,6 +67,7 @@ interface StreamMarketPriceProps {
   onPriceUpdate: (symbol: string, price: number) => void;
   quoteAsset: string;
   pricePrecision: number;
+  position: any;
 }
 
 function StreamMarketPrice({
@@ -74,6 +75,7 @@ function StreamMarketPrice({
   onPriceUpdate,
   quoteAsset,
   pricePrecision,
+  position,
 }: StreamMarketPriceProps) {
   const { livePrice, socketError } = useStreamMarketPrice(
     symbol,

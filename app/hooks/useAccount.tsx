@@ -6,13 +6,17 @@ type AccountType = {
 };
 
 export function useAccount(): UseQueryResult<any, Error | null> {
+  const API_URL =
+    process.env.NEXT_PUBLIC_NODE_ENV === "production"
+      ? process.env.NEXT_PUBLIC_API_URL
+      : process.env.NEXT_PUBLIC_TEST_API_URL;
+
   return useQuery({
     queryKey: ["account"],
     queryFn: async () => {
       try {
-        const account = await fetchData(
-          "https://fapi.binance.com/fapi/v2/account"
-        );
+        const account = await fetchData(`${API_URL}/fapi/v2/account`);
+
         const usdtAsset = account.assets.find(
           (asset: AccountType) => asset.asset === "USDT"
         );
@@ -32,6 +36,6 @@ export function useAccount(): UseQueryResult<any, Error | null> {
         );
       }
     },
-    staleTime: 5000,
+    staleTime: 1000,
   });
 }

@@ -1,6 +1,6 @@
 import axios from "axios";
-import { getQueryString, API_KEY, SECRET_KEY } from "../util/cryptoConfig";
-import generateSignature from "../util/cryptoUtils";
+import { getQueryString, API_KEY, SECRET_KEY } from "../../util/cryptoConfig";
+import generateSignature from "../../util/cryptoUtils";
 ;
 
 export async function fetchData(url: string) {

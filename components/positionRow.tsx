@@ -1,4 +1,4 @@
-import StreamMarketPrice from "../hooks/useStreamMarketPrice";
+import StreamMarketPrice from "../app/hooks/useStreamMarketPrice";
 import {
   formatNumber,
   addTextClass,
