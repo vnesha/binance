@@ -1,43 +1,48 @@
 "use client";
+import React, { Fragment } from "react";
 import { usePositionData } from "../hooks/usePositionData";
 import { CombinedDataType } from "../types/types";
-import { formatNumber } from "@/util/formatingNumber";
+import PositionDataRow from "@/components/positionDataRow";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PositionHeader } from "@/components/positionHeader";
 
 function Test() {
-  const { combinedData } = usePositionData();
+  const { combinedData, isLoading } = usePositionData();
+  const filteredPositions = combinedData?.filter(
+    (position: CombinedDataType) => position.positionAmt !== 0
+  );
 
   return (
-    <div>
-      {combinedData?.map((data: CombinedDataType) => {
-        const precision = data.exchangeInfoData?.pricePrecision;
-        const quoteAsset = data.exchangeInfoData?.quoteAsset;
-        const baseAsset = data.exchangeInfoData?.baseAsset;
-
-        return (
-          <div key={data.symbol}>
-            <h3>{data.symbol}</h3>
-            <p>
-              {formatNumber(data.initialMargin, quoteAsset, false, 2, {
-                showPlusSign: false,
-                customSuffix: "",
-              })}
-            </p>
-            <p>{data.positionAmt + " " + baseAsset}</p>
-            <p>
-              {formatNumber(data.livePrice, quoteAsset, false, precision, {
-                showPlusSign: false,
-                customSuffix: "",
-              })}
-            </p>
-            <p>
-              {formatNumber(data.unrealizedProfit, quoteAsset, true, 2, {
-                showPlusSign: true,
-                customSuffix: "",
-              })}
-            </p>
+    <div className="pl-4 pr-4">
+      <Tabs defaultValue="position">
+        <TabsList>
+          <TabsTrigger value="position">{`Positions(${filteredPositions?.length})`}</TabsTrigger>
+          <TabsTrigger value="open-orders">Open Orders</TabsTrigger>
+        </TabsList>
+        <TabsContent value="position">
+          <div className="table w-full">
+            <PositionHeader />
+            {isLoading ? (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div className="animate-spin border-t-4 border-yellow h-16 w-16 rounded-full"></div>
+              </div>
+            ) : (
+              combinedData?.map((data: CombinedDataType, index: number) => (
+                <PositionDataRow
+                  key={index}
+                  data={data}
+                  index={index}
+                  isLoading={isLoading}
+                />
+              ))
+            )}
           </div>
-        );
-      })}
+        </TabsContent>
+        <TabsContent value="open-orders">
+          <PositionHeader />
+          empty
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

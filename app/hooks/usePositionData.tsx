@@ -15,24 +15,31 @@ const queryOptions: any = {
   staleTime: 1000,
 };
 
-const calculateUnrealizedProfit = (
+const calculateUnrealizedProfitAndMarginROE = (
   livePrice: string | null,
   position: PositionType | undefined
-): number => {
+): { unrealizedProfit: number; margin: number; roe: number } => {
   if (
     livePrice === null ||
     !position ||
     isNaN(Number(livePrice)) ||
     isNaN(Number(position.positionAmt)) ||
-    isNaN(Number(position.entryPrice))
+    isNaN(Number(position.entryPrice)) ||
+    isNaN(Number(position.leverage))
   ) {
-    return 0;
+    return { unrealizedProfit: 0, margin: 0, roe: 0 };
   }
 
-  return (
+  const unrealizedProfit =
     Number(position.positionAmt) *
-    (parseFloat(livePrice) - Number(position.entryPrice))
-  );
+    (parseFloat(livePrice) - Number(position.entryPrice));
+
+  const margin =
+    Math.abs(Number(position.positionAmt) * parseFloat(livePrice)) /
+    Number(position.leverage);
+  const roe = (unrealizedProfit / margin) * 100;
+
+  return { unrealizedProfit, margin, roe };
 };
 
 export const usePositionData = () => {
@@ -88,6 +95,10 @@ export const usePositionData = () => {
     queryOptions
   );
 
+  const isLoading =
+    positions.isLoading || account.isLoading || exchangeInfo.isLoading;
+  const isError = positions.isError || account.isError || exchangeInfo.isError;
+
   useEffect(() => {
     if (positions.data && account.data && exchangeInfo.data) {
       const filteredPositions = positions.data.filter(
@@ -102,10 +113,18 @@ export const usePositionData = () => {
         (position: AccountType) => filteredSymbols.includes(position.symbol)
       );
 
+      const filteredAssets = account.data.assets.filter(
+        (asset: AccountType) => asset.asset === "USDT"
+      );
+
       const initialCombinedData = filteredAccount.map(
         (account: AccountType) => {
           const position = filteredPositions.find(
             (position: PositionType) => position.symbol === account.symbol
+          );
+
+          const asset = filteredAssets.find(
+            (asset: AccountType) => asset.asset === "USDT"
           );
 
           const exchangeInfoData = exchangeInfo.data.symbols.find(
@@ -120,17 +139,32 @@ export const usePositionData = () => {
             }
           }
 
-          const unrealizedProfit = calculateUnrealizedProfit(
-            livePrice,
-            position
-          );
+          const { unrealizedProfit, margin, roe } =
+            calculateUnrealizedProfitAndMarginROE(livePrice, position);
+
+          let marginRatio = null;
+          if (asset && asset.maintMargin && asset.marginBalance) {
+            marginRatio = (asset.maintMargin / asset.marginBalance) * 100;
+          }
+
+          const contractType = exchangeInfoData?.contractType.toLowerCase();
+          const contractTypeCapitalized =
+            contractType.charAt(0).toUpperCase() + contractType.slice(1);
 
           return {
             ...account,
             ...position,
-            exchangeInfoData, // dodajte exchangeInfoData
+            asset,
+            exchangeInfoData,
             livePrice,
             unrealizedProfit,
+            margin,
+            roe,
+            marginRatio,
+            quoteAsset: exchangeInfoData?.quoteAsset,
+            baseAsset: exchangeInfoData?.baseAsset,
+            pricePrecision: exchangeInfoData?.pricePrecision,
+            contractTypeCapitalized,
           };
         }
       );
@@ -166,18 +200,22 @@ export const usePositionData = () => {
               if (!oldData) {
                 return [];
               }
-              return oldData.map((item) =>
-                item.symbol === currentSymbol
-                  ? {
-                      ...item,
-                      livePrice: message.p || item.livePrice,
-                      unrealizedProfit: calculateUnrealizedProfit(
-                        message.p,
-                        item
-                      ),
-                    }
-                  : item
-              );
+              return oldData.map((item) => {
+                if (item.symbol === currentSymbol) {
+                  const { unrealizedProfit, margin, roe } =
+                    calculateUnrealizedProfitAndMarginROE(message.p, item);
+
+                  return {
+                    ...item,
+                    livePrice: message.p || item.livePrice,
+                    unrealizedProfit,
+                    margin,
+                    roe,
+                  };
+                } else {
+                  return item;
+                }
+              });
             });
           }
         };
@@ -194,5 +232,5 @@ export const usePositionData = () => {
     };
   }, [positions.data, account.data, exchangeInfo.data, lastJsonMessage]); // Dodajte exchangeInfo.data u zavisnosti
 
-  return { combinedData };
+  return { combinedData, isLoading, isError };
 };
