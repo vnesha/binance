@@ -1,20 +1,24 @@
 export function formatNumber(
-  number: number | string,
-  symbol: string,
+  number: number | string | null | undefined,
+  symbol: string | undefined,
   isBaseAsset: boolean,
-  precision: number | undefined,
+  precision: number | undefined | null,
   options: { showPlusSign?: boolean, customSuffix?: string } = {}
 ) {
   const { showPlusSign = false, customSuffix = "" } = options;
 
-  const parsedNumber = typeof number === "string" ? parseFloat(number) : number;
+  const parsedNumber = number 
+    ? typeof number === "string" 
+      ? parseFloat(number) 
+      : number 
+    : 0;  // pretpostavimo 0 ako je broj null ili undefined
 
   const formattedNumber = parsedNumber.toLocaleString("en-US", {
-    minimumFractionDigits: precision,
-    maximumFractionDigits: precision,
+    minimumFractionDigits: precision ?? 0, // pretpostavimo 0 ako je preciznost null ili undefined
+    maximumFractionDigits: precision ?? 0, // pretpostavimo 0 ako je preciznost null ili undefined
   });
 
-  const suffix = customSuffix || (isBaseAsset ? symbol : "");
+  const suffix = customSuffix || (isBaseAsset ? symbol ?? "" : ""); // pretpostavimo prazan string ako je simbol undefined
 
   const spaceAfterNumber = customSuffix === "" ? " " : "";
 

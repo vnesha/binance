@@ -1,30 +1,43 @@
 "use client";
 import { usePositionData } from "../hooks/usePositionData";
-
-type CombinedDataType = {
-  symbol: string;
-  positionAmt: string;
-  price: string;
-  positionSymbol: string;
-  livePrice: string | null;
-  initialMargin?: string;
-  unrealizedProfit: number;
-};
+import { CombinedDataType } from "../types/types";
+import { formatNumber } from "@/util/formatingNumber";
 
 function Test() {
   const { combinedData } = usePositionData();
 
   return (
     <div>
-      {combinedData?.map((data: CombinedDataType) => (
-        <div key={data.symbol}>
-          <h3>Symbol: {data.symbol}</h3>
-          <p>Initial Margin: {data.initialMargin}</p>
-          <p>Position Amount: {data.positionAmt}</p>
-          <p>Live Price: {data.livePrice}</p>
-          <p>Live Price: {data.unrealizedProfit}</p>
-        </div>
-      ))}
+      {combinedData?.map((data: CombinedDataType) => {
+        const precision = data.exchangeInfoData?.pricePrecision;
+        const quoteAsset = data.exchangeInfoData?.quoteAsset;
+        const baseAsset = data.exchangeInfoData?.baseAsset;
+
+        return (
+          <div key={data.symbol}>
+            <h3>{data.symbol}</h3>
+            <p>
+              {formatNumber(data.initialMargin, quoteAsset, false, 2, {
+                showPlusSign: false,
+                customSuffix: "",
+              })}
+            </p>
+            <p>{data.positionAmt + " " + baseAsset}</p>
+            <p>
+              {formatNumber(data.livePrice, quoteAsset, false, precision, {
+                showPlusSign: false,
+                customSuffix: "",
+              })}
+            </p>
+            <p>
+              {formatNumber(data.unrealizedProfit, quoteAsset, true, 2, {
+                showPlusSign: true,
+                customSuffix: "",
+              })}
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }

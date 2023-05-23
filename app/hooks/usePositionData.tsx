@@ -2,27 +2,12 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "./fetchData";
-
-type BinanceResponse = {
-  s: string;
-  p: string;
-};
-
-type AccountType = {
-  asset: string;
-  symbol: string;
-};
-
-type PositionType = {
-  symbol: string;
-  positionAmt: string;
-  price: string;
-  positionSymbol: string;
-  livePrice: string | null;
-  markPrice: string;
-  unrealizedProfit: number;
-  entryPrice: string;
-};
+import {
+  CombinedDataType,
+  AccountType,
+  PositionType,
+  BinanceResponse,
+} from "../types/types";
 
 const queryOptions: any = {
   refetchOnWindowFocus: true,
@@ -51,7 +36,7 @@ const calculateUnrealizedProfit = (
 };
 
 export const usePositionData = () => {
-  const [combinedData, setCombinedData] = useState<PositionType[]>([]);
+  const [combinedData, setCombinedData] = useState<CombinedDataType[]>([]);
   const { lastJsonMessage, readyState } = useWebSocket(null, {
     shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 10,
@@ -91,12 +76,20 @@ export const usePositionData = () => {
   const urlAccount = () => {
     return fetchData(`${API_URL}/fapi/v2/account`);
   };
+  const urlExchangeInfo = () => {
+    return fetchData(`${API_URL}/fapi/v1/exchangeInfo`);
+  };
 
   const positions = useQuery(["position"], urlPosition, queryOptions);
   const account = useQuery(["account"], urlAccount, queryOptions);
+  const exchangeInfo = useQuery(
+    ["exchangeInfo"],
+    urlExchangeInfo,
+    queryOptions
+  );
 
   useEffect(() => {
-    if (positions.data && account.data) {
+    if (positions.data && account.data && exchangeInfo.data) {
       const filteredPositions = positions.data.filter(
         (position: PositionType) => Number(position.positionAmt) !== 0
       );
@@ -115,6 +108,10 @@ export const usePositionData = () => {
             (position: PositionType) => position.symbol === account.symbol
           );
 
+          const exchangeInfoData = exchangeInfo.data.symbols.find(
+            (info: { symbol: string }) => info.symbol === account.symbol
+          );
+
           let livePrice: string | null = position?.markPrice || null;
           if (lastJsonMessage) {
             const message = lastJsonMessage as BinanceResponse;
@@ -131,6 +128,7 @@ export const usePositionData = () => {
           return {
             ...account,
             ...position,
+            exchangeInfoData, // dodajte exchangeInfoData
             livePrice,
             unrealizedProfit,
           };
@@ -194,7 +192,7 @@ export const usePositionData = () => {
         }
       });
     };
-  }, [positions.data, account.data, lastJsonMessage]);
+  }, [positions.data, account.data, exchangeInfo.data, lastJsonMessage]); // Dodajte exchangeInfo.data u zavisnosti
 
   return { combinedData };
 };
