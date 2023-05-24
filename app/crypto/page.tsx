@@ -4,6 +4,7 @@ import { CombinedDataType } from "../types/types";
 import PositionDataRow from "@/components/positionDataRow";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PositionHeader } from "@/components/positionHeader";
+// tailwindcss: text-green text-red bg-green bg-red
 
 function Test() {
   const { combinedData, isLoading } = usePositionData();
