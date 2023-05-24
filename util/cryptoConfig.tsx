@@ -37,3 +37,8 @@ export const getQueryString = async () => {
   const timestamp = await getServerTime();
   return `timestamp=${timestamp}&recvWindow=5000`;
 };
+
+export const getQueryStringPost = async () => {
+  const timestamp = await getServerTime();
+  return `timestamp=${timestamp}`;
+};

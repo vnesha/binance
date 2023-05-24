@@ -40,5 +40,7 @@ export type CombinedDataType = AccountType & PositionType & {
     contractTypeCapitalized: string;
     exchangeInfoData: ExchangeInfoType | undefined;
     isLoading: boolean;
+    side: string;
+    positionSide: string;
   };
   

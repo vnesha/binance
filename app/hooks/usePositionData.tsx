@@ -100,7 +100,12 @@ export const usePositionData = () => {
   const isError = positions.isError || account.isError || exchangeInfo.isError;
 
   useEffect(() => {
-    if (positions.data && account.data && exchangeInfo.data) {
+    if (
+      positions.data &&
+      Array.isArray(positions.data) &&
+      account.data &&
+      exchangeInfo.data
+    ) {
       const filteredPositions = positions.data.filter(
         (position: PositionType) => Number(position.positionAmt) !== 0
       );
