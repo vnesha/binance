@@ -42,5 +42,5 @@ export type CombinedDataType = AccountType & PositionType & {
     isLoading: boolean;
     side: string;
     positionSide: string;
-  };
+ };
   

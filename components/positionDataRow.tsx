@@ -1,6 +1,6 @@
 import { formatNumber, addTextClass, addBgClass } from "@/util/formatingNumber";
 import { CombinedDataType } from "@/app/types/types";
-import { useClosePosition } from "@/app/hooks/closeMarPosition";
+import { useClosePosition } from "@/app/hooks/useCloseMarkPosition";
 
 const CloseButton = ({
   symbol,

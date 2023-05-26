@@ -43,6 +43,7 @@ const calculateUnrealizedProfitAndMarginROE = (
 };
 
 export const usePositionData = () => {
+  const [perpetualSymbols, setPerpetualSymbols] = useState<string[]>([]); // Use the correct type here
   const [combinedData, setCombinedData] = useState<CombinedDataType[]>([]);
   const { lastJsonMessage, readyState } = useWebSocket(null, {
     shouldReconnect: (closeEvent) => true,
@@ -173,8 +174,13 @@ export const usePositionData = () => {
           };
         }
       );
-
       setCombinedData(initialCombinedData);
+
+      const perpetualSymbolsArray = exchangeInfo.data?.symbols
+        .filter((symbolData: any) => symbolData.contractType === "PERPETUAL")
+        .map((symbolData: any) => symbolData.symbol);
+
+      setPerpetualSymbols(perpetualSymbolsArray);
 
       // Set up a WebSocket for each symbol
       filteredSymbols.forEach((symbol: string) => {
@@ -237,5 +243,5 @@ export const usePositionData = () => {
     };
   }, [positions.data, account.data, exchangeInfo.data, lastJsonMessage]); // Dodajte exchangeInfo.data u zavisnosti
 
-  return { combinedData, isLoading, isError };
+  return { combinedData, isLoading, isError, perpetualSymbols };
 };

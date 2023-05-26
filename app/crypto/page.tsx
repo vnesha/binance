@@ -1,13 +1,14 @@
 "use client";
 import { usePositionData } from "../hooks/usePositionData";
 import { CombinedDataType } from "../types/types";
-import PositionDataRow from "@/components/positionDataRow";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PositionHeader } from "@/components/positionHeader";
+import { OrderForm } from "@/components/orderForm";
+import PositionDataRow from "@/components/positionDataRow";
 // tailwindcss: text-green text-red bg-green bg-red
 
-function Test() {
-  const { combinedData, isLoading } = usePositionData();
+function CryptoPage() {
+  const { combinedData, isLoading, perpetualSymbols } = usePositionData();
   const filteredPositions = combinedData?.filter(
     (position: CombinedDataType) => position.positionAmt !== 0
   );
@@ -35,11 +36,11 @@ function Test() {
         </TabsContent>
         <TabsContent value="open-orders">
           <PositionHeader />
-          empty
+          <OrderForm perpetualSymbols={perpetualSymbols} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-export default Test;
+export default CryptoPage;
