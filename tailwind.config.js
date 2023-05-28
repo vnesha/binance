@@ -15,6 +15,9 @@ module.exports = {
       white: '#ffffff',
       gray: '#252930',
       'gray-light': '#848e9c',
+      'gray-lighter': '#eaecef',
+      'gray-dark': '#161a1e',
+      'gray-middle': '#2b3139',
     },
     extend: {
       // fontSize: {
@@ -25,5 +28,7 @@ module.exports = {
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
 }
