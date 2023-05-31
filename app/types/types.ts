@@ -3,6 +3,26 @@ export type BinanceResponse = {
     p: string;
   };
 
+export type SymbolInfo = {
+    symbol: string;
+    status: string;
+    baseAsset: string;
+    baseAssetPrecision: number;
+    quoteAsset: string;
+    quotePrecision: number;
+    quoteAssetPrecision: number;
+    baseCommissionPrecision: number;
+    quoteCommissionPrecision: number;
+    orderTypes: string[];
+    icebergAllowed: boolean;
+    ocoAllowed: boolean;
+    isSpotTradingAllowed: boolean;
+    isMarginTradingAllowed: boolean;
+    filters: any[];
+    permissions: string[];
+    contractType: string;
+  };
+
 export type AccountType = {
     asset: string;
     symbol: string;
@@ -33,7 +53,7 @@ export type ExchangeInfoType = {
     pricePrecision: number;
   };
   
-export type CombinedDataType = AccountType & PositionType & {
+export type CombinedDataType = AccountType & PositionType & SymbolInfo & {
     unrealizedProfit: number;
     margin: number;
     roe: number;
@@ -42,5 +62,7 @@ export type CombinedDataType = AccountType & PositionType & {
     isLoading: boolean;
     side: string;
     positionSide: string;
- };
+    baseAssetAllSymbols: string;
+    quoteAssetAllSymbols: string;
+  };
   

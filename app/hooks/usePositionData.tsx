@@ -7,6 +7,7 @@ import {
   AccountType,
   PositionType,
   BinanceResponse,
+  SymbolInfo,
 } from "../types/types";
 
 const queryOptions: any = {
@@ -43,7 +44,8 @@ const calculateUnrealizedProfitAndMarginROE = (
 };
 
 export const usePositionData = () => {
-  const [perpetualSymbols, setPerpetualSymbols] = useState<string[]>([]); // Use the correct type here
+  const [perpetualSymbols, setPerpetualSymbols] = useState<string[]>([]);
+  const [baseAssetAll, setBaseAssetAll] = useState<string[]>([]);
   const [combinedData, setCombinedData] = useState<CombinedDataType[]>([]);
   const { lastJsonMessage, readyState } = useWebSocket(null, {
     shouldReconnect: (closeEvent) => true,
@@ -157,6 +159,9 @@ export const usePositionData = () => {
           const contractTypeCapitalized =
             contractType.charAt(0).toUpperCase() + contractType.slice(1);
 
+          const baseAsset = exchangeInfoData?.baseAsset; // Keep this as before
+          const quoteAsset = exchangeInfoData?.quoteAsset; // Keep this as before
+
           return {
             ...account,
             ...position,
@@ -167,8 +172,8 @@ export const usePositionData = () => {
             margin,
             roe,
             marginRatio,
-            quoteAsset: exchangeInfoData?.quoteAsset,
-            baseAsset: exchangeInfoData?.baseAsset,
+            quoteAsset,
+            baseAsset,
             pricePrecision: exchangeInfoData?.pricePrecision,
             contractTypeCapitalized,
           };
@@ -176,8 +181,18 @@ export const usePositionData = () => {
       );
       setCombinedData(initialCombinedData);
 
+      const baseAssetArray = exchangeInfo.data?.symbols.map(
+        (symbolData: any) => symbolData.baseAsset
+      );
+
+      setBaseAssetAll(baseAssetArray);
+
       const perpetualSymbolsArray = exchangeInfo.data?.symbols
-        .filter((symbolData: any) => symbolData.contractType === "PERPETUAL")
+        .filter(
+          (symbolData: any) =>
+            symbolData.contractType === "PERPETUAL" &&
+            symbolData.symbol.endsWith("USDT")
+        )
         .map((symbolData: any) => symbolData.symbol);
 
       setPerpetualSymbols(perpetualSymbolsArray);
@@ -242,6 +257,11 @@ export const usePositionData = () => {
       });
     };
   }, [positions.data, account.data, exchangeInfo.data, lastJsonMessage]); // Dodajte exchangeInfo.data u zavisnosti
-
-  return { combinedData, isLoading, isError, perpetualSymbols };
+  return {
+    combinedData,
+    isLoading,
+    isError,
+    perpetualSymbols,
+    baseAssetAll,
+  };
 };

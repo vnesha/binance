@@ -8,7 +8,8 @@ import PositionDataRow from "@/components/positionDataRow";
 // tailwindcss: text-green text-red bg-green bg-red
 
 function CryptoPage() {
-  const { combinedData, isLoading, perpetualSymbols } = usePositionData();
+  const { combinedData, isLoading, perpetualSymbols, baseAssetAll } =
+    usePositionData();
   const filteredPositions = combinedData?.filter(
     (position: CombinedDataType) => position.positionAmt !== 0
   );
@@ -36,7 +37,10 @@ function CryptoPage() {
         </TabsContent>
         <TabsContent value="open-orders">
           <PositionHeader />
-          <OrderForm perpetualSymbols={perpetualSymbols} />
+          <OrderForm
+            perpetualSymbols={perpetualSymbols}
+            baseAssetAll={baseAssetAll}
+          />
         </TabsContent>
       </Tabs>
     </div>
