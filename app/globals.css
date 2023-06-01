@@ -31,6 +31,7 @@
   --theme-color-secondary: rgb(183, 189, 198);;
 }
 
+
 body {
   background-color: var(--theme-color-primary);
   color: var(--theme-color-secondary);  

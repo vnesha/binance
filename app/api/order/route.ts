@@ -1,24 +1,21 @@
 import { NextResponse } from "next/server";
+import { openOrder } from "@/app/hooks/useTestOpenOreder";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const symbol = searchParams.get('symbol');
     const quantity = searchParams.get('quantity');
-    return NextResponse.json({quantity, symbol});
-//     console.log("Received request:", request);
-    
-//     const url = new URL(request.url);
-//     console.log("URL:", url);
-    
-//     const { searchParams } = url;
-//     const symbol = searchParams.get('symbol');
-//     const quantity = searchParams.get('quantity');
-
-//     console.log("Symbol:", symbol);
-//     console.log("Quantity:", quantity);
-
-//     const redirectUrl = `/api/order?symbol=${symbol}&quantity=${quantity}`;
-//     console.log("Redirect URL:", redirectUrl);
-    
-//     return Response.redirect(redirectUrl, 302);
-}
+  
+    if (!symbol || !quantity) {
+      return NextResponse.json({ error: "Invalid parameters" });
+    }
+  
+    try {
+        const response = await openOrder({ symbol, quantity: Number(quantity) });
+        return NextResponse.json(response);
+      } catch (error) {
+        console.error(error);
+        return NextResponse.json({ error: "Error processing order" });
+      }
+    }
+  
