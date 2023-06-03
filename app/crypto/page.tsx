@@ -6,6 +6,7 @@ import { PositionHeader } from "@/components/positionHeader";
 import { OrderForm } from "@/components/orderForm";
 import PositionDataRow from "@/components/positionDataRow";
 import AdvancedChart from "@/components/AdvancedChart";
+
 // tailwindcss: text-green text-red bg-green bg-red
 
 function CryptoPage() {
@@ -17,7 +18,17 @@ function CryptoPage() {
 
   return (
     <div>
-      <AdvancedChart />
+      <div className="flex">
+        <div className="w-full">
+          <AdvancedChart />
+        </div>
+        <div className="flex w-[255px] bg-black">
+          <OrderForm
+            perpetualSymbols={perpetualSymbols}
+            baseAssetAll={baseAssetAll}
+          />
+        </div>
+      </div>
       <div className="pl-4 pr-4">
         <Tabs defaultValue="position">
           <TabsList>
@@ -40,10 +51,6 @@ function CryptoPage() {
           </TabsContent>
           <TabsContent value="open-orders">
             <PositionHeader />
-            <OrderForm
-              perpetualSymbols={perpetualSymbols}
-              baseAssetAll={baseAssetAll}
-            />
           </TabsContent>
         </Tabs>
       </div>

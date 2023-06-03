@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { OpenOrder } from "@/components/buttonOpenOrder";
-import { useOpenOrder } from "@/app/hooks/useOpenOrder";
+import { useOpenOrder } from "@/app/hooks/useOpenOrderNew";
 import { usePositionData } from "@/app/hooks/usePositionData";
 import * as Yup from "yup";
 
@@ -25,13 +25,15 @@ export const OrderForm = ({
   const [hasLostFocus, setHasLostFocus] = useState(false);
   const { combinedData } = usePositionData();
   const quoteAsset = combinedData.map((item) => item.quoteAsset);
-  const [selectedAsset, setSelectedAsset] = useState("");
+  const [selectedSide, setSelectedSide] = useState<"BUY" | "SELL">("BUY");
+
   //const quoteAssetAll = [...new Set(quoteAsset)];
 
   const formik = useFormik({
     initialValues: {
       selectedSymbol: "",
       quantity: "",
+      selectedAsset: "",
     },
     validationSchema,
     validateOnMount: false,
@@ -45,6 +47,7 @@ export const OrderForm = ({
         await openMarkOrderMutation.mutateAsync({
           symbol: values.selectedSymbol,
           quantity: parseFloat(values.quantity),
+          side: selectedSide,
         });
         setHasClickedBuy(false);
         setHasStartedTyping(false);
@@ -112,7 +115,7 @@ export const OrderForm = ({
               formik.setFieldTouched("quantity");
             }
           }}
-          className={`quantity-field - relative m-[1px] my-2 box-border inline-flex h-10 w-full items-center rounded bg-gray-middle text-sm hover:border hover:border-yellow ${
+          className={`relative m-[1px] my-2 box-border inline-flex h-10 w-full items-center justify-between rounded bg-gray-middle text-sm hover:border hover:border-yellow ${
             (formik.values.quantity === "" && hasClickedBuy) ||
             (parseFloat(formik.values.quantity) === 0 &&
               formik.touched.quantity)
@@ -124,10 +127,10 @@ export const OrderForm = ({
           }`}
         >
           <div>
-            <label className="ml-2 flex flex-shrink-0">Size</label>
+            <label className="ml-2 flex w-1/3 flex-shrink-0">Size</label>
           </div>
           <input
-            className="m-0 h-10 w-full border-0 bg-gray-middle/0 px-1 py-0 text-right text-sm focus:border-0 focus:ring-0"
+            className="m-0 h-10 w-2/3 border-0 bg-gray-middle/0 px-1 py-0 text-right text-sm focus:border-0 focus:ring-0"
             type="text"
             name="quantity"
             onChange={(e) => {
@@ -155,11 +158,13 @@ export const OrderForm = ({
             value={formik.values.quantity === "" ? "" : formik.values.quantity}
           />
           <div>
-            <label className="flex flex-shrink-0 text-right text-sm text-gray-lighter">
+            <label className="flex w-1/4 flex-shrink-0 text-right text-sm text-gray-lighter">
               <select
                 className="border-0 bg-gray-middle/0 text-right text-sm outline-none focus:ring-0"
-                value={selectedAsset}
-                onChange={(e) => setSelectedAsset(e.target.value)}
+                value={formik.values.selectedAsset}
+                onChange={(e) =>
+                  formik.setFieldValue("selectedAsset", e.target.value)
+                }
               >
                 <option value={baseAsset}>{baseAsset}</option>
                 <option value={quoteAsset}>{quoteAsset}</option>
@@ -167,10 +172,22 @@ export const OrderForm = ({
             </label>
           </div>
         </div>
-        <OpenOrder
-          isFormValid={formik.isValid && formik.dirty}
-          isSubmitting={formik.isSubmitting}
-        />
+        <div className="mt-4 flex space-x-2">
+          <OpenOrder
+            variant="BUY"
+            isFormValid={formik.isValid && formik.dirty}
+            isSubmitting={formik.isSubmitting}
+            buttonName="Buy/Long"
+            onButtonClick={setSelectedSide}
+          />
+          <OpenOrder
+            variant="SELL"
+            isFormValid={formik.isValid && formik.dirty}
+            isSubmitting={formik.isSubmitting}
+            buttonName="Sell/Short"
+            onButtonClick={setSelectedSide}
+          />
+        </div>
       </form>
     </div>
   );

@@ -28,7 +28,7 @@
 
 :root {
   --theme-color-primary: rgb(22, 26, 30);
-  --theme-color-secondary: rgb(183, 189, 198);;
+  --theme-color-secondary: rgb(183, 189, 198);
 }
 
 
@@ -51,18 +51,29 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
-select {
+/*style the arrow inside the select element:*/
+select.selected:after {
+  position: absolute;
+  content: "tt";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+
+/* select {
   background-image:
     linear-gradient(135deg, #848e9c 50%, transparent 50%),
     linear-gradient(45deg, transparent 50%, #848e9c 50%);
   background-position:
-    calc(100% - 15px) 1.2em,
-    calc(100% - 20px) 1.2em;
+    calc(100% - 15px) 1.3em,
+    calc(100% - 20px) 1.3em;
   background-size:
     5px 5px,
     5px 5px;
   background-repeat: no-repeat;
   cursor: pointer;
 
-}
-
+} */
