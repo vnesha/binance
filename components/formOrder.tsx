@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
-import { OpenOrder } from "@/components/buttonOpenOrder";
-import { useOpenOrder } from "@/app/hooks/useOpenOrderNew";
-import { usePositionData } from "@/app/hooks/usePositionData";
+import { Button } from "@/components/buttonOpenOrder";
+import { useOpenOrder } from "@/app/hooks/useOpenPosition";
+import { usePositionData } from "@/app/hooks/useAllPositionData";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
@@ -48,6 +49,10 @@ export const OrderForm = ({
           symbol: values.selectedSymbol,
           quantity: parseFloat(values.quantity),
           side: selectedSide,
+          // type: "LIMIT",
+          //stopLossPrice: 26000,
+          // price: 25000,
+          takeProfitPrice: 28000,
         });
         setHasClickedBuy(false);
         setHasStartedTyping(false);
@@ -79,6 +84,14 @@ export const OrderForm = ({
 
   return (
     <div className="w-[255px] bg-black px-4">
+      <Tabs defaultValue="Limit">
+        <TabsList className=" pr-[100px]">
+          <TabsTrigger value="Limit">Limit</TabsTrigger>
+          <TabsTrigger value="Market">Market</TabsTrigger>
+        </TabsList>
+        <TabsContent value="Limit"></TabsContent>
+        <TabsContent value="Market"></TabsContent>
+      </Tabs>
       <form onSubmit={formik.handleSubmit}>
         <label className="text-sm">
           Select a symbol:
@@ -87,7 +100,7 @@ export const OrderForm = ({
             name="selectedSymbol"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            value={formik.values.selectedSymbol}
+            value={formik.values.selectedSymbol[0]}
           >
             {perpetualSymbols.map((symbol: string) => (
               <option value={symbol} key={symbol}>
@@ -173,14 +186,14 @@ export const OrderForm = ({
           </div>
         </div>
         <div className="mt-4 flex space-x-2">
-          <OpenOrder
+          <Button
             variant="BUY"
             isFormValid={formik.isValid && formik.dirty}
             isSubmitting={formik.isSubmitting}
             buttonName="Buy/Long"
             onButtonClick={setSelectedSide}
           />
-          <OpenOrder
+          <Button
             variant="SELL"
             isFormValid={formik.isValid && formik.dirty}
             isSubmitting={formik.isSubmitting}

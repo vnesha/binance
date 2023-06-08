@@ -1,19 +1,24 @@
-import { useOpenOrder } from "@/app/hooks/useOpenOrderNew";
-import { VariantProps, cva } from "class-variance-authority";
+import { useOpenOrder } from "@/app/hooks/useOpenPosition";
+import { cva } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
-export const OpenOrder = ({
-  isFormValid,
-  isSubmitting,
-  variant,
-  buttonName,
+export const Button = ({
+  isFormValid = true,
+  isSubmitting = false,
+  variant = "BUY",
+  buttonName = "",
   onButtonClick,
-}: {
+  className,
+  ...props
+}: Partial<{
   isFormValid: boolean;
   isSubmitting: boolean;
   variant: "BUY" | "SELL";
   buttonName: string;
   onButtonClick?: (side: "BUY" | "SELL") => void;
-}) => {
+  className?: string;
+  [x: string]: any;
+}>) => {
   const openMarkOrderMutation = useOpenOrder();
 
   const buttonVariants = cva(
@@ -34,9 +39,10 @@ export const OpenOrder = ({
   return (
     <button
       type="submit"
-      className={buttonVariants({ variant })}
+      className={cn(buttonVariants({ variant }), className)} // koristite cn za spajanje klasa
       disabled={!isFormValid || isSubmitting || openMarkOrderMutation.isLoading}
       onClick={() => onButtonClick && onButtonClick(variant)}
+      {...props}
     >
       {buttonName}
     </button>

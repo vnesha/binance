@@ -1,13 +1,23 @@
 "use client";
-import { usePositionData } from "../hooks/usePositionData";
+import { usePositionData } from "../hooks/useAllPositionData";
 import { CombinedDataType } from "../types/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PositionHeader } from "@/components/positionHeader";
-import { OrderForm } from "@/components/orderForm";
-import PositionDataRow from "@/components/positionDataRow";
-import AdvancedChart from "@/components/AdvancedChart";
-
+import { PositionHeader } from "@/components/headerPosition";
+import { OrderForm } from "@/components/formOrder";
+import { ToastContainer } from "react-toastify";
+import { useOpenOrdersData } from "../hooks/useOpenOrdersData";
+import PositionDataRow from "@/components/rowPositions";
+import OrderDataRow from "@/components/rowOpenOrders";
+import AdvancedChart from "@/components/advancedChart";
+import "react-toastify/dist/ReactToastify.css";
 // tailwindcss: text-green text-red bg-green bg-red
+
+type Order = {
+  symbol: string;
+  orderId: number;
+  price: number;
+  stopPrice: number;
+};
 
 function CryptoPage() {
   const { combinedData, isLoading, perpetualSymbols, baseAssetAll } =
@@ -15,13 +25,12 @@ function CryptoPage() {
   const filteredPositions = combinedData?.filter(
     (position: CombinedDataType) => position.positionAmt !== 0
   );
+  const { data: openOrders } = useOpenOrdersData();
 
   return (
     <div>
       <div className="flex">
-        <div className="w-full">
-          <AdvancedChart />
-        </div>
+        <div className="w-full">{/* <AdvancedChart /> */}</div>
         <div className="flex w-[255px] bg-black">
           <OrderForm
             perpetualSymbols={perpetualSymbols}
@@ -33,7 +42,9 @@ function CryptoPage() {
         <Tabs defaultValue="position">
           <TabsList>
             <TabsTrigger value="position">{`Positions(${filteredPositions?.length})`}</TabsTrigger>
-            <TabsTrigger value="open-orders">Open Orders</TabsTrigger>
+            <TabsTrigger value="openOrders">{`Open Orders(${
+              openOrders ? openOrders.length : 0
+            })`}</TabsTrigger>
           </TabsList>
           <TabsContent value="position">
             <div className="table w-full">
@@ -49,11 +60,15 @@ function CryptoPage() {
               )}
             </div>
           </TabsContent>
-          <TabsContent value="open-orders">
+          <TabsContent value="openOrders">
             <PositionHeader />
+            {openOrders?.map((order: Order, index: number) => (
+              <OrderDataRow key={index} order={order} />
+            ))}
           </TabsContent>
         </Tabs>
       </div>
+      <ToastContainer />
     </div>
   );
 }

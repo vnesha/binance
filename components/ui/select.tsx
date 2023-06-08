@@ -18,14 +18,14 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex items-center border-0 px-3 py-2 text-sm disabled:cursor-not-allowed",
+      "flex items-center border-0 pr-3 pt-2 text-sm outline-none disabled:cursor-not-allowed",
       className
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
+      <ChevronDown className="relative top-3 ml-1 h-4 w-4" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -39,8 +39,8 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 overflow-hidden rounded-md border border-yellow shadow-md",
-        position === "popper" && "translate-y-1",
+        "relative z-50 rounded-md border border-yellow bg-gray-dark shadow-md",
+        position === "popper" && "translate-y-4",
         className
       )}
       position={position}
@@ -93,7 +93,7 @@ const SelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-muted", className)}
+    className={cn("bg-muted -mx-1 my-1 h-px", className)}
     {...props}
   />
 ));

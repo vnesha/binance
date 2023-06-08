@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient, QueryCache } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { API_URL } from "@/util/cryptoConfig";
-import { postData } from "./postData";
+import { postData } from "./usePostData";
 
 const closePosition = async ({
   symbol,

@@ -39,19 +39,20 @@ module.exports = {
           to: { height: 0 },
         },
       },
+      variants: {
+        scrollbar: ['rounded']
+      },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
-      // fontSize: {
-      //   sm: ['12px', '16px'],
-      // },
       fontFamily: {
         sans: ['IntIBMPlexSans', 'sans'],
       }
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
+    // require('tailwind-scrollbar')({ nocompatible: true }),
+    // require('@tailwindcss/forms'),
     require("tailwindcss-animate")],
 }
