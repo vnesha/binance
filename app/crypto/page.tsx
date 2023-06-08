@@ -8,7 +8,7 @@ import { ToastContainer } from "react-toastify";
 import { useOpenOrdersData } from "../hooks/useOpenOrdersData";
 import PositionDataRow from "@/components/rowPositions";
 import OrderDataRow from "@/components/rowOpenOrders";
-import AdvancedChart from "@/components/advancedChart";
+import AdvancedChart from "@/components/chartAdvanced";
 import "react-toastify/dist/ReactToastify.css";
 // tailwindcss: text-green text-red bg-green bg-red
 
