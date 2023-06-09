@@ -1,4 +1,5 @@
 import { useClosePosition } from "@/app/hooks/useCloseMarkPosition";
+import { useCancelAllOpenOrders } from "@/app/hooks/useCancelAllOpenOrders";
 
 type buttonClosePositionProps = {
   symbol: string;
@@ -10,9 +11,11 @@ export default function buttonClosePosition({
   quantity,
 }: buttonClosePositionProps) {
   const closePositionMutation = useClosePosition();
+  const cancelAllOpenOrders = useCancelAllOpenOrders();
 
   const handleCloseClick = () => {
     closePositionMutation.mutate({ symbol, quantity });
+    cancelAllOpenOrders.mutate({ symbol });
   };
 
   return (
