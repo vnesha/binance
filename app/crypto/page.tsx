@@ -8,20 +8,20 @@ import { ToastContainer } from "react-toastify";
 import { useOpenOrdersData } from "../hooks/useOpenOrdersData";
 import PositionDataRow from "@/components/rowPositions";
 import OrderDataRow from "@/components/rowOpenOrders";
+import { Order } from "../types/types";
+import { OpenOrdersHeaader } from "@/components/headerOpenOrders";
 import AdvancedChart from "@/components/chartAdvanced";
 import "react-toastify/dist/ReactToastify.css";
 // tailwindcss: text-green text-red bg-green bg-red
 
-type Order = {
-  symbol: string;
-  orderId: number;
-  price: number;
-  stopPrice: number;
-};
-
 function CryptoPage() {
-  const { combinedData, isLoading, perpetualSymbols, baseAssetAll } =
-    usePositionData();
+  const {
+    combinedData,
+    isLoading,
+    perpetualSymbols,
+    baseAssetAll,
+    exchangeInfo,
+  } = usePositionData();
   const filteredPositions = combinedData?.filter(
     (position: CombinedDataType) => position.positionAmt !== 0
   );
@@ -48,7 +48,7 @@ function CryptoPage() {
           </TabsList>
           <TabsContent value="position">
             <div className="table w-full">
-              <PositionHeader />
+              <PositionHeader dataIsEmpty={filteredPositions.length === 0} />
               {isLoading ? (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                   <div className="h-16 w-16 animate-spin rounded-full border-t-4 border-yellow"></div>
@@ -61,10 +61,17 @@ function CryptoPage() {
             </div>
           </TabsContent>
           <TabsContent value="openOrders">
-            <PositionHeader />
-            {openOrders?.map((order: Order, index: number) => (
-              <OrderDataRow key={index} order={order} />
-            ))}
+            <div>
+              <OpenOrdersHeaader dataIsEmpty={filteredPositions.length === 0} />
+              {openOrders?.map((order: Order, index: number) => (
+                <OrderDataRow
+                  key={index}
+                  order={order}
+                  index={index}
+                  exchangeInfo={exchangeInfo}
+                />
+              ))}
+            </div>
           </TabsContent>
         </Tabs>
       </div>

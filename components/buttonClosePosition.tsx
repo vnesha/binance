@@ -24,7 +24,7 @@ export default function buttonClosePosition({
       disabled={closePositionMutation.isLoading}
     >
       {/* {closePositionMutation.isLoading ? "Closing..." : "Close Position"} */}
-      Close Position
+      Market
     </button>
   );
 }

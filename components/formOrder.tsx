@@ -50,9 +50,9 @@ export const OrderForm = ({
           quantity: parseFloat(values.quantity),
           side: selectedSide,
           // type: "LIMIT",
-          //stopLossPrice: 26000,
-          // price: 25000,
-          takeProfitPrice: 28000,
+          // stopLossPrice: 25000,
+          price: 28000,
+          takeProfitPrice: 27000,
         });
         setHasClickedBuy(false);
         setHasStartedTyping(false);

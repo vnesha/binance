@@ -99,7 +99,7 @@ const PositionDataRow = ({
         })})`}
       </div>
     </div>
-    <div>
+    <div className="flex-shrink-0 flex-grow basis-[25px] text-yellow">
       <ButtonClosePosition symbol={data.symbol} quantity={data.positionAmt} />
     </div>
   </div>

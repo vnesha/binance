@@ -65,4 +65,24 @@ export type CombinedDataType = AccountType & PositionType & SymbolInfo & {
     baseAssetAllSymbols: string;
     quoteAssetAllSymbols: string;
   };
+
+  export type Order = {
+    symbol: string;
+    orderId: number;
+    price: number;
+    stopPrice: number;
+    time: string;
+    type: string;
+    side: string;
+    origQty: number;
+    reduceOnly: number;
+    priceProtect: number;
+    executedQty: number;
+  };
+  
+  export type OrderDataRowProps = {
+    order: Order;
+    index: number; 
+    exchangeInfo: any
+ };
   

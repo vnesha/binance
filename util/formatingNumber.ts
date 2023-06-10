@@ -81,4 +81,13 @@ export function addBgClass(number: number) {
   }
 }
 
+export function addTextClassSide(string: string) {
+
+  if (string == "BUY") {
+    return "text-green";
+   } else {
+    return "text-red";
+  }
+}
+
   

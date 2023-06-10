@@ -262,5 +262,6 @@ export const usePositionData = () => {
     isError,
     perpetualSymbols,
     baseAssetAll,
+    exchangeInfo: exchangeInfo.data,
   };
 };

@@ -13,7 +13,7 @@ const TabsList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
-    className={cn("flex flex-row items-center h-10 w-[200px]", className)}
+    className={cn("flex h-10 w-[200px] flex-row items-center", className)}
     {...props}
   />
 ));
@@ -26,7 +26,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "data-[state=active]:text-yellow hover:text-yellow font-medium text-sm flex flex-1 flex-shrink-0",
+      "flex flex-1 flex-shrink-0 text-sm font-medium data-[state=active]:text-yellow hover:text-yellow",
       // data-[state=active]:bg-red
       className
     )}
@@ -41,7 +41,10 @@ const TabsContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
-    className={cn("sm: overflow-auto", className)}
+    className={cn(
+      "sm: h-32 overflow-auto scrollbar-thin scrollbar-track-gray/0 scrollbar-thumb-[#474D57] scrollbar-thumb-rounded-md",
+      className
+    )}
     {...props}
   />
 ));

@@ -13,7 +13,11 @@ export default function CancelButton({ symbol, orderId }: CancelButtonProps) {
   };
 
   return (
-    <button onClick={handleCloseClick} disabled={cancelOrder.isLoading}>
+    <button
+      className="flex-shrink-0 flex-grow basis-[70px] text-left"
+      onClick={handleCloseClick}
+      disabled={cancelOrder.isLoading}
+    >
       Cancel Order
     </button>
   );
