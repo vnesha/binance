@@ -61,7 +61,7 @@ function CryptoPage() {
             </div>
           </TabsContent>
           <TabsContent value="openOrders">
-            <div>
+            <div className="table h-20 w-full">
               <OpenOrdersHeaader dataIsEmpty={filteredPositions.length === 0} />
               {openOrders?.map((order: Order, index: number) => (
                 <OrderDataRow

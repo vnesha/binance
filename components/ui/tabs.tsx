@@ -42,7 +42,7 @@ const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "sm: h-32 overflow-auto scrollbar-thin scrollbar-track-gray/0 scrollbar-thumb-[#474D57] scrollbar-thumb-rounded-md",
+      "scrollbar-thin scrollbar-track-gray/0 scrollbar-thumb-[#474D57] scrollbar-thumb-rounded-md sm:overflow-auto",
       className
     )}
     {...props}
