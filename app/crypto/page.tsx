@@ -47,7 +47,7 @@ function CryptoPage() {
             })`}</TabsTrigger>
           </TabsList>
           <TabsContent value="position">
-            <div className="table w-full">
+            <div className="table h-20 w-full">
               <PositionHeader dataIsEmpty={filteredPositions.length === 0} />
               {isLoading ? (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -75,7 +75,7 @@ function CryptoPage() {
           </TabsContent>
         </Tabs>
       </div>
-      <ToastContainer />
+      <ToastContainer className={"text-sm"} newestOnTop />
     </div>
   );
 }

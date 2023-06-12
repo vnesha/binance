@@ -8,6 +8,10 @@ export const formatOrderType = (type: any) => {
         return "Stop Market";
       case "TAKE_PROFIT_MARKET":
         return "Take Profit Market";
+      case "SELL":
+        return "Sell";
+      case "BUY":
+        return "Buy";
       default:
         return type;
     }

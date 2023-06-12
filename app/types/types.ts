@@ -85,4 +85,12 @@ export type CombinedDataType = AccountType & PositionType & SymbolInfo & {
     index: number; 
     exchangeInfo: any
  };
+
+ export interface AxiosError {
+  message: string;
+  response?: {
+    status: number;
+    data: any;
+  };
+}
   

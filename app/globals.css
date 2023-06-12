@@ -29,17 +29,41 @@
 :root {
   --theme-color-primary: rgb(22, 26, 30);
   --theme-color-secondary: rgb(183, 189, 198);
+  --toastify-color-dark: #2b3139 !important;
+  --toastify-color-success: #0dcb81 !important;
+  --toastify-color-warning: #f0b90b !important;
+  --toastify-color-error: #f6475d !important;
+  --toastify-text-color-dark: #b7bdc6 !important;
+  --toastify-toast-width: 320px !important;
+  --toastify-toast-background: #fff;
+  --toastify-toast-min-height: 54px !important;
+  --toastify-toast-max-height: 800px;
+  --toastify-font-family: sans-serif;
+  --toastify-z-index: 9999;
+  --toastify-text-color-light: #757575;
+  --toastify-text-color-dark: #fff;
+  --toastify-text-color-info: #fff;
+  --toastify-text-color-success: #fff;
+  --toastify-text-color-warning: #fff;
+  --toastify-text-color-error: #fff;
 }
 
+.Toastify__close-button {
+  color: #b7bdc6 !important;
+}
+
+.Toastify__toast-body {
+  padding-top: 6px !important;
+}
 
 body {
   background-color: var(--theme-color-primary);
-  color: var(--theme-color-secondary);  
+  color: var(--theme-color-secondary);
   font-family: "IBMPlexSans";
-  overflow-x: hidden!important;
- }
+  overflow-x: hidden !important;
+}
 
- /* Chrome, Safari, Edge, Opera */
+/* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -47,7 +71,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -65,6 +89,3 @@ input[type=number] {
   cursor: pointer;
 
 } */
-
-
-
