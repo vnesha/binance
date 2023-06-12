@@ -83,9 +83,15 @@ export type CombinedDataType = AccountType & PositionType & SymbolInfo & {
   export type OrderDataRowProps = {
     order: Order;
     index: number; 
-    exchangeInfo: any
+    exchangeInfo: any;
+    
  };
 
+ export type leverageDataProps = {
+  leverage: any;
+  exchangeInfo: any;
+  
+}
  export interface AxiosError {
   message: string;
   response?: {

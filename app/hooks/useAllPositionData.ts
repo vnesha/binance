@@ -160,10 +160,12 @@ export const usePositionData = () => {
 
           const baseAsset = exchangeInfoData?.baseAsset; // Keep this as before
           const quoteAsset = exchangeInfoData?.quoteAsset; // Keep this as before
+          const leverage = position?.leverage || null;
 
           return {
             ...account,
             ...position,
+            leverage,
             asset,
             exchangeInfoData,
             livePrice,
@@ -262,6 +264,7 @@ export const usePositionData = () => {
     isError,
     perpetualSymbols,
     baseAssetAll,
+    positions: positions.data,
     exchangeInfo: exchangeInfo.data,
   };
 };
