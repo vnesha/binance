@@ -17,7 +17,15 @@ function NewOrderForm() {
   const { positions, perpetualSymbols, leverageBrackets } = usePositionData();
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<number>(20);
-  const [selectedLeverage, setSelectedLeverage] = useState<number>(20);
+  const [selectedLeverage, setSelectedLeverage] = useState<number>();
+  const [hasMounted, setHasMounted] = useState(false);
+  const [placeholder] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedSymbol") || "BTCUSDT";
+    } else {
+      return null;
+    }
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -32,6 +40,10 @@ function NewOrderForm() {
       // });
     },
   });
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (perpetualSymbols.length > 0 && !selectedSymbol) {
@@ -85,12 +97,16 @@ function NewOrderForm() {
             "Initial Leverage:",
             leverageBracket.brackets[0].initialLeverage
           );
-          setSelectedPosition(leverageBracket.brackets[0].initialLeverage);
+          setSelectedLeverage(leverageBracket.brackets[0].initialLeverage);
         }
       }
     },
     [positions, leverageBrackets]
   );
+
+  if (!hasMounted) {
+    return null;
+  }
 
   return (
     <div className="w-[255px] bg-gray-middle-light px-4">
@@ -102,11 +118,7 @@ function NewOrderForm() {
               value={selectedSymbol || undefined}
             >
               <SelectTrigger>
-                <SelectValue
-                  placeholder={
-                    localStorage.getItem("selectedSymbol") || "BTCUSDT"
-                  }
-                >
+                <SelectValue placeholder={placeholder}>
                   {selectedSymbol}
                 </SelectValue>
               </SelectTrigger>
