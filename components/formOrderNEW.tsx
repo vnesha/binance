@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/select";
 
 function NewOrderForm() {
-  const { positions, perpetualSymbols } = usePositionData();
+  const { positions, perpetualSymbols, leverageBrackets } = usePositionData();
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<number>(20);
+  const [selectedLeverage, setSelectedLeverage] = useState<number>(20);
 
   const formik = useFormik({
     initialValues: {
@@ -49,9 +50,17 @@ function NewOrderForm() {
       );
       if (foundPosition) {
         setSelectedPosition(foundPosition.leverage); // Koristimo leverage direktno
+        if (leverageBrackets) {
+          const leverageBracket = leverageBrackets.find(
+            (bracket: any) => bracket.symbol === selectedSymbol
+          );
+          if (leverageBracket) {
+            setSelectedLeverage(leverageBracket.brackets[0].initialLeverage);
+          }
+        }
       }
     }
-  }, [selectedSymbol, positions]);
+  }, [selectedSymbol, positions, leverageBrackets]);
 
   const handleSelect = useCallback(
     (symbol: string) => {
@@ -60,49 +69,68 @@ function NewOrderForm() {
       formik.setFieldValue("symbol", symbol);
 
       // Filter out the position data for the selected symbol
-      if (positions) {
+      if (positions && leverageBrackets) {
         const foundPosition = positions.find(
           (position: any) => position.symbol === symbol
+        );
+        const leverageBracket = leverageBrackets.find(
+          (bracket: any) => bracket.symbol === symbol
         );
         if (foundPosition) {
           console.log("Leverage:", foundPosition.leverage);
           setSelectedPosition(foundPosition.leverage); // Koristimo leverage direktno
         }
+        if (leverageBracket) {
+          console.log(
+            "Initial Leverage:",
+            leverageBracket.brackets[0].initialLeverage
+          );
+          setSelectedPosition(leverageBracket.brackets[0].initialLeverage);
+        }
       }
     },
-    [positions]
+    [positions, leverageBrackets]
   );
 
   return (
-    <div className="w-[255px] bg-black px-4">
+    <div className="w-[255px] bg-gray-middle-light px-4">
       <form onSubmit={formik.handleSubmit}>
-        <div className="w-1/2 font-bold">
-          <Select
-            onValueChange={handleSelect}
-            value={selectedSymbol || undefined}
-          >
-            <SelectTrigger>
-              <SelectValue
-                placeholder={
-                  localStorage.getItem("selectedSymbol") || "BTCUSDT"
-                }
-              >
-                {selectedSymbol}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <ScrollArea className="h-[200px]">
-                {perpetualSymbols.map((symbol: string, index: number) => (
-                  <SelectItem value={symbol} key={`${symbol}-${index}`}>
-                    {symbol}
-                  </SelectItem>
-                ))}
-              </ScrollArea>
-            </SelectContent>
-            <div className="m-0 p-0 text-xs">Perpetual</div>
-          </Select>
-          <div>Leverage: {selectedPosition}</div>
+        <div className="flex items-center justify-between font-bold">
+          <div className="flex flex-col items-start">
+            <Select
+              onValueChange={handleSelect}
+              value={selectedSymbol || undefined}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    localStorage.getItem("selectedSymbol") || "BTCUSDT"
+                  }
+                >
+                  {selectedSymbol}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <ScrollArea className="h-[200px]">
+                  {perpetualSymbols.map((symbol: string, index: number) => (
+                    <SelectItem value={symbol} key={`${symbol}-${index}`}>
+                      {symbol}
+                    </SelectItem>
+                  ))}
+                </ScrollArea>
+              </SelectContent>
+              <div className="m-0 p-0 text-sm font-medium">Perpetual</div>
+            </Select>
+          </div>
+          <div className="mt-3 flex w-1/3 flex-col space-y-1 text-center text-xs font-bold">
+            <div className="bg-gray-middle px-6 py-[2px]">Cross</div>
+            <div className="bg-gray-middle px-6 py-[2px]">
+              {selectedPosition}x
+            </div>
+            {/* <div>{selectedLeverage}</div> */}
+          </div>
         </div>
+
         <button className="mt-40" type="submit">
           Submit
         </button>

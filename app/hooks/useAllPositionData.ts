@@ -89,11 +89,21 @@ export const usePositionData = () => {
     return fetchData(`${API_URL}/fapi/v1/exchangeInfo`);
   };
 
+  const urlLeverageBrackets = () => {
+    return fetchData(`${API_URL}/fapi/v1/leverageBracket`);
+  };
+
   const positions = useQuery(["position"], urlPosition, queryOptions);
   const account = useQuery(["account"], urlAccount, queryOptions);
   const exchangeInfo = useQuery(
     ["exchangeInfo"],
     urlExchangeInfo,
+    queryOptions
+  );
+
+  const leverageBrackets = useQuery(
+    ["leverageBrackets"],
+    urlLeverageBrackets,
     queryOptions
   );
 
@@ -146,6 +156,10 @@ export const usePositionData = () => {
             }
           }
 
+          const leverageBracket = leverageBrackets.data?.find(
+            (bracket: any) => bracket.symbol === account.symbol
+          );
+
           const { unrealizedProfit, margin, roe } =
             calculateUnrealizedProfitAndMarginROE(livePrice, position);
 
@@ -161,11 +175,14 @@ export const usePositionData = () => {
           const baseAsset = exchangeInfoData?.baseAsset; // Keep this as before
           const quoteAsset = exchangeInfoData?.quoteAsset; // Keep this as before
           const leverage = position?.leverage || null;
+          const maxLeverage = leverageBracket?.brackets[0]?.initialLeverage || null;
+
 
           return {
             ...account,
             ...position,
             leverage,
+            maxLeverage,
             asset,
             exchangeInfoData,
             livePrice,
@@ -257,7 +274,8 @@ export const usePositionData = () => {
         }
       });
     };
-  }, [positions.data, account.data, exchangeInfo.data, lastJsonMessage]); // Dodajte exchangeInfo.data u zavisnosti
+  }, [positions.data, account.data, exchangeInfo.data, leverageBrackets.data,
+    lastJsonMessage]); // Dodajte exchangeInfo.data u zavisnosti
   return {
     combinedData,
     isLoading,
@@ -266,5 +284,6 @@ export const usePositionData = () => {
     baseAssetAll,
     positions: positions.data,
     exchangeInfo: exchangeInfo.data,
+    leverageBrackets: leverageBrackets.data,
   };
 };
