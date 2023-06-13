@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import RangeSlider from "@/components/slider";
 
 function NewOrderForm() {
   const { positions, perpetualSymbols, leverageBrackets } = usePositionData();
@@ -142,7 +143,10 @@ function NewOrderForm() {
             {/* <div>{selectedLeverage}</div> */}
           </div>
         </div>
-
+        <RangeSlider
+          initialMargin={selectedLeverage || 0}
+          selectedPosition={selectedPosition || 0}
+        />
         <button className="mt-40" type="submit">
           Submit
         </button>
