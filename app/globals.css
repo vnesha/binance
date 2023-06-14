@@ -82,8 +82,8 @@ input[type="range"].slider {
 } */
 
 input[type="range"].slider::-webkit-slider-thumb {
-  -webkit-appearance: none; /* for Chrome, Safari, Opera */
-  appearance: none; /* Standard property */
+  -webkit-appearance: none;
+  appearance: none;
   width: 14px;
   height: 14px;
   background: #4caf50;
@@ -91,8 +91,8 @@ input[type="range"].slider::-webkit-slider-thumb {
 }
 
 input[type="range"].slider::-moz-range-thumb {
-  -moz-appearance: none; /* for Firefox */
-  appearance: none; /* Standard property */
+  -moz-appearance: none;
+  appearance: none;
   width: 14px;
   height: 14px;
   background: #4caf50;

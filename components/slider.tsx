@@ -16,12 +16,6 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
   // Calculating the step size for markers
   const stepSize = initialMargin / 5;
 
-  // Snap to nearest marker when released
-  const handleMouseUp = () => {
-    const closestMarker = Math.round(value / stepSize) * stepSize;
-    setValue(closestMarker);
-  };
-
   return (
     <div className="relative w-full py-6">
       <input
@@ -31,14 +25,9 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
         value={value}
         step="1"
         onChange={(e) => setValue(Number(e.target.value))}
-        onMouseUp={handleMouseUp}
-        className="appearance-none slider absolute w-full"
-        style={{ zIndex: 2 }}
+        className="slider absolute w-full appearance-none"
       />
-      <div
-        className="absolute grid w-full grid-flow-col content-center justify-between"
-        style={{ zIndex: 1 }}
-      >
+      <div className="absolute grid w-full grid-flow-col content-center justify-between">
         {Array.from(Array(6).keys()).map((i) => {
           let extraClass = "";
           if (i === 3) extraClass = "adjust-marker-3";
@@ -63,7 +52,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
           </div>
         ))}
       </div>
-      <div className="mt-2 text-center">{value}</div>
+      <div className="mt-2 text-center">{value === 0 ? 1 : value}</div>
     </div>
   );
 };
