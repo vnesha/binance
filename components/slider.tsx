@@ -49,12 +49,30 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
     window.addEventListener("mouseup", handleMouseUp);
   };
 
+  const handleSliderClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    if (sliderRef.current) {
+      const sliderRect = sliderRef.current.getBoundingClientRect();
+      let newValue = Math.floor(
+        ((e.clientX - sliderRect.left - thumbWidth / 2) /
+          (sliderRect.width - thumbWidth)) *
+          initialMargin
+      );
+      newValue = Math.max(0, Math.min(newValue, initialMargin));
+      setValue(newValue);
+    }
+  };
+
   return (
     <div className="flex w-full select-none flex-col items-center py-6">
+      {/* Range Slider */}
       <div
         ref={sliderRef}
         className="relative m-0 box-border flex h-[25px] w-full min-w-0 select-none items-center justify-between"
+        onClick={handleSliderClick}
       >
+        {/* Progress Bar */}
         <div className="absolute flex w-full items-center justify-center">
           <div className="h-1 w-full rounded bg-[#474d57] px-1">
             <div
@@ -63,13 +81,17 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
             ></div>
           </div>
         </div>
-        <div className="absolute z-[1] grid w-full grid-flow-col content-center justify-between">
+        {/* Markers */}
+        <div className="absolute grid w-full grid-flow-col content-center justify-between">
           {Array.from(Array(totalSteps).keys()).map((i) => {
             const isPassed = value >= i * stepSize;
             return (
               <div
                 key={i}
-                onClick={() => setValue(i * stepSize)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setValue(i * stepSize);
+                }}
                 className={`box-content h-[6px] w-[6px] origin-center rotate-45 cursor-pointer select-none rounded-sm border-2 border-[#474d57] ${
                   isPassed
                     ? "border-gray-middle-light bg-[#b7bdc6] hover:bg-gray-lighter"
@@ -84,7 +106,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
             );
           })}
         </div>
-
+        {/* Orignial Slider */}
         <div className="absolute flex w-full select-none items-center justify-center">
           <input
             type="range"
@@ -98,6 +120,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
             className="slider w-full cursor-pointer appearance-none bg-gray/0"
           />
         </div>
+        {/* Custom Thumb */}
         <div
           ref={thumbRef}
           className="custom-thumb"
@@ -110,7 +133,8 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
           onMouseDown={handleDragStart}
         ></div>
       </div>
-      <div className="mt-4 grid select-none grid-flow-col grid-cols-6 content-center justify-between gap-[20px] text-xs">
+      {/* Options */}
+      <div className="mt-4 grid select-none grid-flow-col grid-cols-6 content-center justify-between gap-[22px] text-xs">
         {Array.from(Array(6).keys()).map((i) => (
           <div
             className={`${value >= i * stepSize ? "text-gray-light" : ""}`}
