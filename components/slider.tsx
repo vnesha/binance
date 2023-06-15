@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type Props = {
   initialMargin: number;
@@ -7,38 +7,76 @@ type Props = {
 
 const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
   const [value, setValue] = useState<number>(selectedPosition);
+  const thumbRef = useRef<HTMLDivElement | null>(null);
 
-  // Listen for changes on selectedPosition and update value
   useEffect(() => {
     setValue(selectedPosition);
   }, [selectedPosition]);
 
-  // Calculating the step size for markers
-  const stepSize = initialMargin / 5;
+  useEffect(() => {
+    const thumb = thumbRef.current;
+    if (thumb && thumb.parentNode) {
+      const thumbWidthPercent =
+        (thumb.offsetWidth / (thumb.parentNode as HTMLElement).offsetWidth) *
+        100;
+      let offsetDirection = value <= initialMargin / 2 ? -20 : -80;
+      thumb.style.transform = `translateX(${offsetDirection}%) rotate(45deg)`;
+      thumb.style.left = `${(value / initialMargin) * 100}%`;
+    }
+  }, [value, initialMargin]);
+
+  const totalSteps = 6;
+  const stepSize = initialMargin / (totalSteps - 1);
+
+  const progressStyle = {
+    width: `${(value / initialMargin) * 100}%`,
+  };
 
   return (
-    <div className="relative w-full py-6">
-      <input
-        type="range"
-        min="1"
-        max={initialMargin}
-        value={value}
-        step="1"
-        onChange={(e) => setValue(Number(e.target.value))}
-        className="slider absolute w-full appearance-none"
-      />
-      <div className="absolute grid w-full grid-flow-col content-center justify-between">
-        {Array.from(Array(6).keys()).map((i) => {
-          let extraClass = "";
-          if (i === 3) extraClass = "adjust-marker-3";
-          if (i === 4) extraClass = "adjust-marker-4";
-          return (
-            <button
-              onClick={() => setValue(i * stepSize)}
-              className={`h-2 w-2 cursor-pointer rounded-full bg-[#ddd] ${extraClass}`}
-            ></button>
-          );
-        })}
+    <div className="flex w-full flex-col items-center py-6">
+      <div className="relative m-0 box-border flex h-[25px] w-full min-w-0 items-center justify-between">
+        <div className="absolute flex w-full items-center justify-center">
+          <div className="h-1 w-full rounded bg-[#474d57] px-1">
+            <div
+              className="h-1 rounded bg-[#b7bdc6]"
+              style={progressStyle}
+            ></div>
+          </div>
+        </div>
+        <div className="absolute z-[1] grid w-full grid-flow-col content-center justify-between">
+          {Array.from(Array(totalSteps).keys()).map((i) => {
+            const isPassed = value >= i * stepSize;
+            return (
+              <div
+                key={i}
+                onClick={() => setValue(i * stepSize)}
+                className={`box-content h-[6px] w-[6px] origin-center rotate-45 cursor-pointer rounded-sm border-2 border-[#474d57] ${
+                  isPassed
+                    ? "border-gray-middle-light bg-[#b7bdc6] hover:bg-gray-lighter"
+                    : "bg-gray hover:border-gray-middle-light hover:bg-[#474d57]"
+                }`}
+                style={{
+                  left: `calc(${((i * stepSize) / initialMargin) * 100}% + ${
+                    (thumbRef.current?.offsetWidth || 0) / 2
+                  }px)`,
+                }}
+              ></div>
+            );
+          })}
+        </div>
+
+        <div className="absolute flex w-full items-center justify-center">
+          <input
+            type="range"
+            min="1"
+            max={initialMargin}
+            value={value}
+            step="1"
+            onChange={(e) => setValue(Number(e.target.value))}
+            className="slider w-full cursor-pointer appearance-none bg-gray/0"
+          />
+        </div>
+        <div ref={thumbRef} className="custom-thumb"></div>
       </div>
       <div className="mt-6 grid grid-flow-col grid-cols-6 content-center justify-between gap-[20px] text-xs">
         {Array.from(Array(6).keys()).map((i) => (
@@ -46,9 +84,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
             className={`${value >= i * stepSize ? "text-gray-light" : ""}`}
             key={i}
           >
-            <div className="mt-2">
-              {i === 0 ? 1 : Math.round(i * stepSize)}x
-            </div>
+            <div>{i === 0 ? 1 : Math.round(i * stepSize)}x</div>
           </div>
         ))}
       </div>

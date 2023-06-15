@@ -49,6 +49,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['IntIBMPlexSans', 'sans'],
+        backgroundColor: ['responsive', 'hover', 'focus', 'active'],
       }
     },
   },
