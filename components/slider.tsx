@@ -8,10 +8,7 @@ type Props = {
 const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
   const [value, setValue] = useState<number>(selectedPosition);
   const thumbRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    setValue(selectedPosition);
-  }, [selectedPosition]);
+  const sliderRef = useRef<HTMLDivElement | null>(null);
 
   const totalSteps = 6;
   const stepSize = initialMargin / (totalSteps - 1);
@@ -20,17 +17,19 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
     width: `${(value / initialMargin) * 100}%`,
   };
 
-  const thumbWidth = 16; // Promenite vrednost prema vašem dizajnu
+  const thumbWidth = 16;
   const trackWidth = 108.5 - (thumbWidth / initialMargin) * 100;
 
-  const sliderRef = useRef<HTMLDivElement | null>(null); // Dodajte novu ref za div slider
+  useEffect(() => {
+    setValue(selectedPosition);
+  }, [selectedPosition]);
 
   const handleDragStart = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
 
     const handleMouseMove = (e: MouseEvent) => {
       if (sliderRef.current) {
-        const sliderRect = sliderRef.current.getBoundingClientRect(); // Koristite sliderRef umesto e.target
+        const sliderRect = sliderRef.current.getBoundingClientRect();
         let newValue = Math.floor(
           ((e.clientX - sliderRect.left) / sliderRect.width) * initialMargin
         );
