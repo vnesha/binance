@@ -18,7 +18,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
   };
 
   const thumbWidth = 16;
-  const trackWidth = 111.6 - (thumbWidth / initialMargin) * 100;
+  const trackWidth = 95.5;
 
   useEffect(() => {
     setValue(selectedPosition);
