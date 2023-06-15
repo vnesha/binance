@@ -18,7 +18,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
   };
 
   const thumbWidth = 16;
-  const trackWidth = 108.5 - (thumbWidth / initialMargin) * 100;
+  const trackWidth = 111.6 - (thumbWidth / initialMargin) * 100;
 
   useEffect(() => {
     setValue(selectedPosition);
@@ -31,9 +31,11 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
       if (sliderRef.current) {
         const sliderRect = sliderRef.current.getBoundingClientRect();
         let newValue = Math.floor(
-          ((e.clientX - sliderRect.left) / sliderRect.width) * initialMargin
+          ((e.clientX - sliderRect.left - thumbWidth / 2) /
+            (sliderRect.width - thumbWidth)) *
+            initialMargin
         );
-        newValue = Math.max(1, Math.min(newValue, initialMargin));
+        newValue = Math.max(0, Math.min(newValue, initialMargin));
         setValue(newValue);
       }
     };
@@ -98,12 +100,14 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
         </div>
         <div
           ref={thumbRef}
-          className="custom-thumb \"
+          className="custom-thumb"
           style={{
-            left: `${(value / initialMargin) * trackWidth - 1.5}%`,
+            left: `calc(${(value / initialMargin) * trackWidth + 2.2}% - ${
+              thumbWidth / 2
+            }px)`,
             width: `${thumbWidth}px`,
           }}
-          onMouseDown={handleDragStart} // Dodajte ovu liniju
+          onMouseDown={handleDragStart}
         ></div>
       </div>
       <div className="mt-4 grid select-none grid-flow-col grid-cols-6 content-center justify-between gap-[20px] text-xs">
