@@ -23,9 +23,37 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
   const thumbWidth = 16; // Promenite vrednost prema vašem dizajnu
   const trackWidth = 108.5 - (thumbWidth / initialMargin) * 100;
 
+  const sliderRef = useRef<HTMLDivElement | null>(null); // Dodajte novu ref za div slider
+
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.preventDefault();
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (sliderRef.current) {
+        const sliderRect = sliderRef.current.getBoundingClientRect(); // Koristite sliderRef umesto e.target
+        let newValue = Math.floor(
+          ((e.clientX - sliderRect.left) / sliderRect.width) * initialMargin
+        );
+        newValue = Math.max(1, Math.min(newValue, initialMargin));
+        setValue(newValue);
+      }
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
   return (
-    <div className="flex w-full flex-col items-center py-6">
-      <div className="relative m-0 box-border flex h-[25px] w-full min-w-0 items-center justify-between">
+    <div className="flex w-full select-none flex-col items-center py-6">
+      <div
+        ref={sliderRef}
+        className="relative m-0 box-border flex h-[25px] w-full min-w-0 select-none items-center justify-between"
+      >
         <div className="absolute flex w-full items-center justify-center">
           <div className="h-1 w-full rounded bg-[#474d57] px-1">
             <div
@@ -41,7 +69,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
               <div
                 key={i}
                 onClick={() => setValue(i * stepSize)}
-                className={`box-content h-[6px] w-[6px] origin-center rotate-45 cursor-pointer rounded-sm border-2 border-[#474d57] ${
+                className={`box-content h-[6px] w-[6px] origin-center rotate-45 cursor-pointer select-none rounded-sm border-2 border-[#474d57] ${
                   isPassed
                     ? "border-gray-middle-light bg-[#b7bdc6] hover:bg-gray-lighter"
                     : "bg-gray hover:border-gray-middle-light hover:bg-[#474d57]"
@@ -56,27 +84,30 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
           })}
         </div>
 
-        <div className="absolute flex w-full items-center justify-center">
+        <div className="absolute flex w-full select-none items-center justify-center">
           <input
             type="range"
             min="1"
             max={initialMargin}
             value={value}
             step="1"
-            onChange={(e) => setValue(Number(e.target.value))}
+            onInput={(e) =>
+              setValue(Number((e.target as HTMLInputElement).value))
+            }
             className="slider w-full cursor-pointer appearance-none bg-gray/0"
           />
         </div>
         <div
           ref={thumbRef}
-          className="custom-thumb"
+          className="custom-thumb \"
           style={{
             left: `${(value / initialMargin) * trackWidth - 1.5}%`,
             width: `${thumbWidth}px`,
           }}
+          onMouseDown={handleDragStart} // Dodajte ovu liniju
         ></div>
       </div>
-      <div className="mt-4 grid grid-flow-col grid-cols-6 content-center justify-between gap-[20px] text-xs">
+      <div className="mt-4 grid select-none grid-flow-col grid-cols-6 content-center justify-between gap-[20px] text-xs">
         {Array.from(Array(6).keys()).map((i) => (
           <div
             className={`${value >= i * stepSize ? "text-gray-light" : ""}`}
