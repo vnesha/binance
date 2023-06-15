@@ -13,24 +13,15 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
     setValue(selectedPosition);
   }, [selectedPosition]);
 
-  useEffect(() => {
-    const thumb = thumbRef.current;
-    if (thumb && thumb.parentNode) {
-      const thumbWidthPercent =
-        (thumb.offsetWidth / (thumb.parentNode as HTMLElement).offsetWidth) *
-        100;
-      let offsetDirection = value <= initialMargin / 2 ? -20 : -80;
-      thumb.style.transform = `translateX(${offsetDirection}%) rotate(45deg)`;
-      thumb.style.left = `${(value / initialMargin) * 100}%`;
-    }
-  }, [value, initialMargin]);
-
   const totalSteps = 6;
   const stepSize = initialMargin / (totalSteps - 1);
 
   const progressStyle = {
     width: `${(value / initialMargin) * 100}%`,
   };
+
+  const thumbWidth = 16; // Promenite vrednost prema vašem dizajnu
+  const trackWidth = 108.5 - (thumbWidth / initialMargin) * 100;
 
   return (
     <div className="flex w-full flex-col items-center py-6">
@@ -76,9 +67,16 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
             className="slider w-full cursor-pointer appearance-none bg-gray/0"
           />
         </div>
-        <div ref={thumbRef} className="custom-thumb"></div>
+        <div
+          ref={thumbRef}
+          className="custom-thumb"
+          style={{
+            left: `${(value / initialMargin) * trackWidth - 1.5}%`,
+            width: `${thumbWidth}px`,
+          }}
+        ></div>
       </div>
-      <div className="mt-6 grid grid-flow-col grid-cols-6 content-center justify-between gap-[20px] text-xs">
+      <div className="mt-4 grid grid-flow-col grid-cols-6 content-center justify-between gap-[20px] text-xs">
         {Array.from(Array(6).keys()).map((i) => (
           <div
             className={`${value >= i * stepSize ? "text-gray-light" : ""}`}
