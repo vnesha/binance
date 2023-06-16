@@ -8,8 +8,14 @@ type Props = {
 
 const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
   const [value, setValue] = useState<number>(0);
-  const thumbRef = useRef<HTMLDivElement | null>(null);
+  const hoverRef = useRef<HTMLDivElement | null>(null);
   const sliderRef = useRef<HTMLDivElement | null>(null);
+  const displayValue = (val: number) => (val === 0 ? 1 : val);
+
+  const setRefs = (element: any) => {
+    hoverRef.current = element;
+    sliderRef.current = element;
+  };
 
   const totalSteps = 6;
   const stepSize = initialMargin / (totalSteps - 1);
@@ -54,7 +60,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
 
         const tooltipWidth = tooltipRef.current?.offsetWidth || 0;
         const thumbPosition =
-          (thumbRef.current?.getBoundingClientRect().left || 0) +
+          (hoverRef.current?.getBoundingClientRect().left || 0) +
           thumbWidth / 2 -
           (sliderRef.current?.getBoundingClientRect().left || 0);
         const tooltipPosition = thumbPosition - tooltipWidth / 2;
@@ -91,7 +97,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
 
       const tooltipWidth = tooltipRef.current?.offsetWidth || 0;
       const thumbPosition =
-        (thumbRef.current?.getBoundingClientRect().left || 0) +
+        (hoverRef.current?.getBoundingClientRect().left || 0) +
         thumbWidth / 2 -
         (sliderRef.current?.getBoundingClientRect().left || 0);
       const tooltipPosition = thumbPosition - tooltipWidth / 2;
@@ -169,9 +175,14 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
       </div>
       {/* Range Slider */}
       <div
-        ref={sliderRef}
         className="relative mt-6 box-border flex h-[25px] w-full min-w-0 select-none items-center justify-between"
+        ref={setRefs}
+        onMouseEnter={() => {
+          stopTooltipTimer();
+          showTooltip(value, initialMargin);
+        }}
         onClick={handleSliderClick}
+        onMouseLeave={hideTooltip}
       >
         {/* Progress Bar */}
         <div className="absolute flex w-full items-center justify-center">
@@ -188,6 +199,12 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
             const isPassed = value >= i * stepSize;
             return (
               <div
+                ref={hoverRef}
+                onMouseEnter={() => {
+                  stopTooltipTimer();
+                  showTooltip(value, initialMargin);
+                }}
+                onMouseLeave={hideTooltip}
                 key={i}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -200,7 +217,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
                 }`}
                 style={{
                   left: `calc(${((i * stepSize) / initialMargin) * 100}% + ${
-                    (thumbRef.current?.offsetWidth || 0) / 2
+                    (hoverRef.current?.offsetWidth || 0) / 2
                   }px)`,
                 }}
               ></div>
@@ -223,7 +240,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
         </div>
         {/* Custom Thumb */}
         <div
-          ref={thumbRef}
+          ref={hoverRef}
           className="custom-thumb"
           style={{
             left: `calc(${(value / initialMargin) * trackWidth + 2.2}% - ${
@@ -239,13 +256,25 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
           onMouseLeave={hideTooltip}
         ></div>
         <div ref={tooltipRef} className="tooltip text-sm">
-          {value}x
+          {displayValue(value)}x
         </div>
       </div>
       {/* Options */}
-      <div className="mt-4 grid w-full select-none grid-flow-col grid-cols-6 content-center justify-between gap-[40px] text-sm">
+      <div className="mt-4 grid w-full cursor-pointer select-none grid-flow-col grid-cols-6 content-center justify-between gap-[40px] text-sm">
         {Array.from(Array(6).keys()).map((i) => (
           <div
+            ref={hoverRef}
+            onMouseEnter={() => {
+              stopTooltipTimer();
+              showTooltip(value, initialMargin);
+            }}
+            onMouseLeave={hideTooltip}
+            onClick={(e) => {
+              e.stopPropagation();
+              const newValue = i * stepSize;
+              setValue(newValue);
+              showTooltip(displayValue(newValue), initialMargin);
+            }}
             className={`${value >= i * stepSize ? "text-gray-light" : ""}`}
             key={i}
           >

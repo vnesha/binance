@@ -27,7 +27,7 @@ const useTooltip = () => {
           tooltipRef.current.style.display = "none";
           setHovered(false);
         }
-      }, 1000);
+      }, 500);
     }
   };
 
