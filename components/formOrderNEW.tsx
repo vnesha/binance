@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import RangeSlider from "@/components/slider";
+import RangeSlider from "@/components/sliderLeverage";
 import {
   Dialog,
   DialogContent,
@@ -143,10 +143,12 @@ function NewOrderForm() {
             </Select>
           </div>
           <div className="mt-3 flex w-1/3 flex-col space-y-1 text-center text-xs font-bold">
-            <div className="bg-gray-middle px-6 py-[2px]">Cross</div>
+            <div className="rounded-sm bg-gray-light-middle px-6 py-[2px]">
+              Cross
+            </div>
             <Dialog>
               <DialogTrigger>
-                <span className="bg-gray-middle px-[27px] py-[2px]">
+                <span className="rounded-sm bg-gray-light-middle px-[27px] py-[2px] hover:bg-gray-middle">
                   {selectedPosition}x
                 </span>
               </DialogTrigger>

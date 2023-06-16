@@ -117,3 +117,15 @@ input[type="range"]::-moz-range-thumb {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.tooltip {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+}
+
+.custom-thumb:hover .tooltip {
+  display: block;
+}

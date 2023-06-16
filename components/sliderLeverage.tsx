@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import useTooltip from "@/app/hooks/useTootltip"; // pretpostavimo da je useTooltip u istom direktorijumu
 
 type Props = {
   initialMargin: number;
@@ -19,6 +20,9 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
 
   const thumbWidth = 16;
   const trackWidth = 95.5;
+
+  const { tooltipRef, showTooltip, hideTooltip, stopTooltipTimer } =
+    useTooltip();
 
   useEffect(() => {
     setValue(selectedPosition);
@@ -47,6 +51,19 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
           setValue(newValue);
           currentValue = newValue;
         }
+
+        const tooltipWidth = tooltipRef.current?.offsetWidth || 0;
+        const thumbPosition =
+          (thumbRef.current?.getBoundingClientRect().left || 0) +
+          thumbWidth / 2 -
+          (sliderRef.current?.getBoundingClientRect().left || 0);
+        const tooltipPosition = thumbPosition - tooltipWidth / 2;
+
+        if (tooltipRef.current) {
+          tooltipRef.current.style.left = `${tooltipPosition}px`;
+        }
+
+        showTooltip(currentValue, initialMargin);
       }
     };
 
@@ -71,6 +88,19 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
       );
       newValue = Math.max(1, Math.min(newValue + 1, initialMargin));
       setValue(newValue);
+
+      const tooltipWidth = tooltipRef.current?.offsetWidth || 0;
+      const thumbPosition =
+        (thumbRef.current?.getBoundingClientRect().left || 0) +
+        thumbWidth / 2 -
+        (sliderRef.current?.getBoundingClientRect().left || 0);
+      const tooltipPosition = thumbPosition - tooltipWidth / 2;
+
+      if (tooltipRef.current) {
+        tooltipRef.current.style.left = `${tooltipPosition}px`;
+      }
+
+      showTooltip(newValue, initialMargin);
     }
   };
 
@@ -81,7 +111,6 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
     e.stopPropagation();
     if (value < initialMargin) {
       setValue((prevValue) => {
-        // console.log("Increasing value from", prevValue);
         let newValue = Math.min(prevValue + 1, initialMargin);
         return newValue;
       });
@@ -94,7 +123,6 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
     e.stopPropagation();
     if (value > 1) {
       setValue((prevValue) => {
-        // console.log("Decreasing value from", prevValue);
         let newValue = Math.max(prevValue - 1, 1);
         return newValue;
       });
@@ -204,7 +232,15 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
             width: `${thumbWidth}px`,
           }}
           onMouseDown={handleDragStart}
+          onMouseEnter={() => {
+            stopTooltipTimer();
+            showTooltip(value, initialMargin);
+          }}
+          onMouseLeave={hideTooltip}
         ></div>
+        <div ref={tooltipRef} className="tooltip text-sm">
+          {value}x
+        </div>
       </div>
       {/* Options */}
       <div className="mt-4 grid w-full select-none grid-flow-col grid-cols-6 content-center justify-between gap-[40px] text-sm">
