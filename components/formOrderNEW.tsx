@@ -150,7 +150,7 @@ function NewOrderForm() {
                   {selectedPosition}x
                 </span>
               </DialogTrigger>
-              <DialogContent className="focus:ring-0 sm:max-w-[384px] md:max-w-[384px] lg:max-w-[384px]">
+              <DialogContent className="sm:max-w-[384px] md:max-w-[384px] lg:max-w-[384px]">
                 <DialogHeader>
                   <DialogTitle className="text-xl text-gray-lighter">
                     Adjust Leverage
