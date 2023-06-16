@@ -199,6 +199,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
             const isPassed = value >= i * stepSize;
             return (
               <div
+                data-key={i}
                 ref={hoverRef}
                 onMouseEnter={() => {
                   stopTooltipTimer();
@@ -261,26 +262,48 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
       </div>
       {/* Options */}
       <div className="mt-4 grid w-full cursor-pointer select-none grid-flow-col grid-cols-6 content-center justify-between gap-[40px] text-sm">
-        {Array.from(Array(6).keys()).map((i) => (
-          <div
-            ref={hoverRef}
-            onMouseEnter={() => {
-              stopTooltipTimer();
-              showTooltip(value, initialMargin);
-            }}
-            onMouseLeave={hideTooltip}
-            onClick={(e) => {
-              e.stopPropagation();
-              const newValue = i * stepSize;
-              setValue(newValue);
-              showTooltip(displayValue(newValue), initialMargin);
-            }}
-            className={`${value >= i * stepSize ? "text-gray-light" : ""}`}
-            key={i}
-          >
-            <div>{i === 0 ? 1 : Math.round(i * stepSize)}x</div>
-          </div>
-        ))}
+        {Array.from(Array(6).keys()).map((i) => {
+          const isPassed = value >= i * stepSize; // dodajte ovo
+          return (
+            <div
+              data-key={i}
+              ref={hoverRef}
+              onMouseEnter={() => {
+                stopTooltipTimer();
+                showTooltip(value, initialMargin);
+                const marker = document.querySelector(`div[data-key="${i}"]`); // pronađite marker
+                if (marker) {
+                  if (isPassed) {
+                    marker.classList.add("hover-effect-passed"); // dodajte ovu klasu ako je isPassed true
+                  } else {
+                    marker.classList.add("hover-effect-not-passed"); // dodajte ovu klasu ako je isPassed false
+                  }
+                }
+              }}
+              onMouseLeave={() => {
+                hideTooltip();
+                const marker = document.querySelector(`div[data-key="${i}"]`); // pronađite marker
+                if (marker) {
+                  if (isPassed) {
+                    marker.classList.remove("hover-effect-passed"); // uklonite ovu klasu
+                  } else {
+                    marker.classList.remove("hover-effect-not-passed"); // uklonite ovu klasu
+                  }
+                }
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                const newValue = i * stepSize;
+                setValue(newValue);
+                showTooltip(displayValue(newValue), initialMargin);
+              }}
+              className={`${value >= i * stepSize ? "text-gray-light" : ""}`}
+              key={i}
+            >
+              <div>{i === 0 ? 1 : Math.round(i * stepSize)}x</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

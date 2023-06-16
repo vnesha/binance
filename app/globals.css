@@ -129,3 +129,15 @@ input[type="range"]::-moz-range-thumb {
 .custom-thumb:hover .tooltip {
   display: block;
 }
+
+.hover-effect-passed {
+  transform: rotate(45deg);
+  background-color: #eaecef;
+  border-color: #1e2329;
+}
+
+.hover-effect-not-passed {
+  transform: rotate(45deg);
+  background-color: #474d57;
+  border-color: #1e2329;
+}
