@@ -28,6 +28,7 @@ module.exports = {
       'gray-dark': '#161a1e',
       'gray-middle': '#2b3139',
       'gray-middle-light': '#1E2329',
+      'gray-middle-lighter': '#2b3139',
     },
     extend: {
       keyframes: {

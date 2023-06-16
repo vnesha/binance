@@ -13,6 +13,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import RangeSlider from "@/components/slider";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 function NewOrderForm() {
   const { positions, perpetualSymbols, leverageBrackets } = usePositionData();
@@ -137,16 +144,26 @@ function NewOrderForm() {
           </div>
           <div className="mt-3 flex w-1/3 flex-col space-y-1 text-center text-xs font-bold">
             <div className="bg-gray-middle px-6 py-[2px]">Cross</div>
-            <div className="bg-gray-middle px-6 py-[2px]">
-              {selectedPosition}x
-            </div>
-            {/* <div>{selectedLeverage}</div> */}
+            <Dialog>
+              <DialogTrigger>
+                <span className="bg-gray-middle px-[27px] py-[2px]">
+                  {selectedPosition}x
+                </span>
+              </DialogTrigger>
+              <DialogContent className="focus:ring-0 sm:max-w-[384px] md:max-w-[384px] lg:max-w-[384px]">
+                <DialogHeader>
+                  <DialogTitle className="text-xl text-gray-lighter">
+                    Adjust Leverage
+                  </DialogTitle>
+                </DialogHeader>
+                <RangeSlider
+                  initialMargin={selectedLeverage || 0}
+                  selectedPosition={selectedPosition || 0}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
-        <RangeSlider
-          initialMargin={selectedLeverage || 0}
-          selectedPosition={selectedPosition || 0}
-        />
         <button className="mt-40" type="submit">
           Submit
         </button>

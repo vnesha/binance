@@ -6,7 +6,7 @@ type Props = {
 };
 
 const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
-  const [value, setValue] = useState<number>(selectedPosition);
+  const [value, setValue] = useState<number>(0);
   const thumbRef = useRef<HTMLDivElement | null>(null);
   const sliderRef = useRef<HTMLDivElement | null>(null);
 
@@ -22,21 +22,31 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
 
   useEffect(() => {
     setValue(selectedPosition);
-  }, [selectedPosition]);
+  }, []);
+
+  useEffect(() => {
+    if (initialMargin > 0 && value === 0) {
+      setValue(Number(selectedPosition));
+    }
+  }, [initialMargin, selectedPosition]);
 
   const handleDragStart = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
 
     const handleMouseMove = (e: MouseEvent) => {
+      let currentValue = value;
       if (sliderRef.current) {
         const sliderRect = sliderRef.current.getBoundingClientRect();
         let newValue = Math.floor(
           ((e.clientX - sliderRect.left - thumbWidth / 2) /
             (sliderRect.width - thumbWidth)) *
-            initialMargin
+            (initialMargin - 1)
         );
-        newValue = Math.max(0, Math.min(newValue, initialMargin));
-        setValue(newValue);
+        newValue = Math.max(1, Math.min(newValue + 1, initialMargin));
+        if (newValue !== currentValue) {
+          setValue(newValue);
+          currentValue = newValue;
+        }
       }
     };
 
@@ -57,19 +67,82 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
       let newValue = Math.floor(
         ((e.clientX - sliderRect.left - thumbWidth / 2) /
           (sliderRect.width - thumbWidth)) *
-          initialMargin
+          (initialMargin - 1)
       );
-      newValue = Math.max(0, Math.min(newValue, initialMargin));
+      newValue = Math.max(1, Math.min(newValue + 1, initialMargin));
       setValue(newValue);
+    }
+  };
+
+  const handleIncrease = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (value < initialMargin) {
+      setValue((prevValue) => {
+        // console.log("Increasing value from", prevValue);
+        let newValue = Math.min(prevValue + 1, initialMargin);
+        return newValue;
+      });
+    }
+  };
+
+  const handleDecrease = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
+    if (value > 1) {
+      setValue((prevValue) => {
+        // console.log("Decreasing value from", prevValue);
+        let newValue = Math.max(prevValue - 1, 1);
+        return newValue;
+      });
     }
   };
 
   return (
     <div className="flex w-full select-none flex-col items-center py-6">
+      {/* Input Field */}
+      <div className="w-full">
+        <div className="mb-1 text-sm">Leverage</div>
+        <div className="box-border flex h-12 flex-row justify-between rounded-[4px] bg-[#2b3139] p-[12px]">
+          <button
+            onClick={handleDecrease}
+            className="box-border h-6 w-6 cursor-pointer text-gray-light hover:text-gray-lighter"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path d="M3 10.5v3h18v-3H3z" fill="currentColor"></path>
+            </svg>
+          </button>
+          <div className="text-[16px] text-gray-lighter">
+            {value === 0 ? 1 : value}x
+          </div>
+          <button
+            onClick={handleIncrease}
+            className="box-border h-6 w-6 cursor-pointer text-gray-light hover:text-gray-lighter"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                d="M13.5 3h-3v7.5H3v3h7.5V21h3v-7.5H21v-3h-7.5V3z"
+                fill="currentColor"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
       {/* Range Slider */}
       <div
         ref={sliderRef}
-        className="relative m-0 box-border flex h-[25px] w-full min-w-0 select-none items-center justify-between"
+        className="relative mt-6 box-border flex h-[25px] w-full min-w-0 select-none items-center justify-between"
         onClick={handleSliderClick}
       >
         {/* Progress Bar */}
@@ -106,7 +179,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
             );
           })}
         </div>
-        {/* Orignial Slider */}
+        {/* Original Slider */}
         <div className="absolute flex w-full select-none items-center justify-center">
           <input
             type="range"
@@ -134,7 +207,7 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
         ></div>
       </div>
       {/* Options */}
-      <div className="mt-4 grid select-none grid-flow-col grid-cols-6 content-center justify-between gap-[22px] text-xs">
+      <div className="mt-4 grid w-full select-none grid-flow-col grid-cols-6 content-center justify-between gap-[40px] text-sm">
         {Array.from(Array(6).keys()).map((i) => (
           <div
             className={`${value >= i * stepSize ? "text-gray-light" : ""}`}
@@ -144,7 +217,6 @@ const RangeSlider: React.FC<Props> = ({ initialMargin, selectedPosition }) => {
           </div>
         ))}
       </div>
-      <div className="mt-2 text-center">{value === 0 ? 1 : value}</div>
     </div>
   );
 };
