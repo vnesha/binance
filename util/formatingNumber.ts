@@ -90,4 +90,13 @@ export function addTextClassSide(string: string) {
   }
 }
 
+export const formatLocale = (number: number | null): string => {
+  if (number === null) {
+    return "0.00 USDT";
+  }
+  return number.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }) + " USDT";
+};
   

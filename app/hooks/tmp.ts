@@ -51,7 +51,13 @@ export const usePositionData = () => {
     reconnectAttempts: 10,
     reconnectInterval: 3000,
   });
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [availableBalance, setAvailableBalance] = useState<number>(0);
+  const [totalUnrealizedProfit, settotalUnrealizedProfit] = useState<number>(0);
+  const [totalMargin, settotalMargin] = useState<number>(0);
 
+  
+  // Koristite useRef umesto obične promenljive
   const symbolToWebSocket = useRef<{ [symbol: string]: WebSocket }>({});
 
   useEffect(() => {
@@ -177,8 +183,12 @@ export const usePositionData = () => {
           const maxLeverage = leverageBracket?.brackets[0]?.initialLeverage || null;
           
           let walletBalance = asset?.walletBalance || 0;
-          
-          return {
+          setWalletBalance(walletBalance);
+
+          console.log("UnrealizedProfit:", unrealizedProfit);
+          console.log("Margin:", margin);
+
+         return {
             ...account,
             ...position,
             leverage,
@@ -193,16 +203,48 @@ export const usePositionData = () => {
             quoteAsset,
             baseAsset,
             pricePrecision: exchangeInfoData?.pricePrecision,
-            contractTypeCapitalized,  
-            walletBalance,         
+            contractTypeCapitalized,
+            walletBalance,
           };
         }
       );
       setCombinedData(initialCombinedData);
 
+      
+      const totalUnrealizedProfit = initialCombinedData.reduce(
+        (acc: number, position: CombinedDataType) => acc + position.unrealizedProfit,
+        0
+      );
+
+      settotalUnrealizedProfit(totalUnrealizedProfit);
+
+      const totalMargin = initialCombinedData.reduce(
+        (acc: number, position: CombinedDataType) => acc + position.margin,
+        0
+      );
+      settotalMargin(totalMargin);
+
+      console.log("totalUnrealizedProfit:", totalUnrealizedProfit);
+      console.log("totalMargin:", totalMargin);
+       
+      const calculatedAvailableBalance = walletBalance - Math.abs(totalUnrealizedProfit) - totalMargin; 
+  
+      console.log("calculatedAvailableBalance:", calculatedAvailableBalance);
+
+      setAvailableBalance(calculatedAvailableBalance);
+  
       const baseAssetArray = exchangeInfo.data?.symbols.map(
         (symbolData: any) => symbolData.baseAsset
       );
+
+      let updatedTotalUnrealizedProfit = totalUnrealizedProfit;
+      let updatedTotalMargin = totalMargin;
+
+      settotalUnrealizedProfit(updatedTotalUnrealizedProfit);
+      settotalMargin(updatedTotalMargin);
+
+      const updatedCalculatedAvailableBalance = walletBalance - Math.abs(updatedTotalUnrealizedProfit) - updatedTotalMargin;
+      setAvailableBalance(updatedCalculatedAvailableBalance);
 
       setBaseAssetAll(baseAssetArray);
 
@@ -250,19 +292,14 @@ export const usePositionData = () => {
                   const { unrealizedProfit, margin, roe } =
                     calculateUnrealizedProfitAndMarginROE(message.p, item);
 
-                    // const totalUnrealizedProfit = initialCombinedData.reduce(
-                    //   (acc: number, position: CombinedDataType) =>
-                    //     acc + position.unrealizedProfit,
-                    //   0
-                    // );
-                  
-                    return {
+                    
+                  return {
                     ...item,
-                    livePrice: message.p || item.livePrice,
-                    unrealizedProfit,
-                    margin,
-                    roe,
-                   };
+                  livePrice: message.p || item.livePrice,
+                  unrealizedProfit,
+                  margin,
+                  roe,
+                  };
                 } else {
                   return item;
                 }
@@ -292,5 +329,8 @@ export const usePositionData = () => {
     positions: positions.data,
     exchangeInfo: exchangeInfo.data,
     leverageBrackets: leverageBrackets.data,
-  };
+    availableBalance,
+    totalUnrealizedProfit,
+    totalMargin,
+      };
 };

@@ -1,9 +1,11 @@
 "use client";
+import { CombinedDataType } from "@/app/types/types";
 import { useFormik } from "formik";
 import { useCallback } from "react";
 import { usePositionData } from "@/app/hooks/useAllPositionData";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatLocale } from "@/util/formatingNumber";
 import {
   Select,
   SelectContent,
@@ -21,11 +23,38 @@ import {
 } from "@/components/ui/dialog";
 
 function NewOrderForm() {
-  const { positions, perpetualSymbols, leverageBrackets } = usePositionData();
+  const { combinedData, positions, perpetualSymbols, leverageBrackets } =
+    usePositionData();
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<number>(20);
   const [selectedLeverage, setSelectedLeverage] = useState<number>();
   const [hasMounted, setHasMounted] = useState(false);
+  const [totalUnrealizedProfit, setTotalUnrealizedProfit] = useState<
+    number | null
+  >(0);
+  const [totalMargin, setTotalMargin] = useState<number | null>(0);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+
+  const formattedWalletBalance =
+    walletBalance !== null
+      ? parseFloat(walletBalance.toString()).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) + "USDT"
+      : "0.00 USDT";
+
+  const availableBalance =
+    walletBalance !== null &&
+    totalUnrealizedProfit !== null &&
+    totalMargin !== null
+      ? walletBalance - Math.abs(totalUnrealizedProfit) - totalMargin
+      : 0;
+
+  const totalBalance =
+    walletBalance !== null && totalUnrealizedProfit !== null
+      ? walletBalance - Math.abs(totalUnrealizedProfit)
+      : 0;
+
   const [placeholder] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("selectedSymbol") || "BTCUSDT";
@@ -111,6 +140,25 @@ function NewOrderForm() {
     [positions, leverageBrackets]
   );
 
+  useEffect(() => {
+    if (combinedData.length > 0) {
+      const totalProfit = combinedData.reduce(
+        (acc: number, position: CombinedDataType) =>
+          acc + position.unrealizedProfit,
+        0
+      );
+      const totalMargin = combinedData.reduce(
+        (acc: number, position: CombinedDataType) => acc + position.margin,
+        0
+      );
+      const balance = combinedData[0].walletBalance;
+
+      setTotalUnrealizedProfit(totalProfit);
+      setTotalMargin(totalMargin);
+      setWalletBalance(balance);
+    }
+  }, [combinedData]);
+
   if (!hasMounted) {
     return null;
   }
@@ -166,6 +214,27 @@ function NewOrderForm() {
             </Dialog>
           </div>
         </div>
+        <div className="mt-6 text-xs">
+          Wallet Balance: {formattedWalletBalance}
+        </div>
+        <div className="mt-6 text-xs">
+          Total Balance:{" "}
+          {totalBalance !== null ? formatLocale(totalBalance) : null}
+        </div>
+        <div className="text-xs">
+          PNL:{" "}
+          {totalUnrealizedProfit !== null
+            ? formatLocale(totalUnrealizedProfit)
+            : null}
+        </div>
+        <div className="text-xs">
+          Margin: {totalMargin !== null ? formatLocale(totalMargin) : null}
+        </div>
+        <div className="text-xs">
+          Avbl:{" "}
+          {availableBalance !== null ? formatLocale(availableBalance) : null}
+        </div>
+
         <button className="mt-40" type="submit">
           Submit
         </button>
