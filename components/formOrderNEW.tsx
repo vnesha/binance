@@ -4,7 +4,6 @@ import { useCallback } from "react";
 import { usePositionData } from "@/app/hooks/useAllPositionData";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CombinedDataType } from "@/app/types/types";
 import {
   Select,
   SelectContent,
@@ -161,6 +160,7 @@ function NewOrderForm() {
                 <RangeSlider
                   initialMargin={selectedLeverage || 0}
                   selectedPosition={selectedPosition || 0}
+                  selectedSymbol={selectedSymbol || ""}
                 />
               </DialogContent>
             </Dialog>

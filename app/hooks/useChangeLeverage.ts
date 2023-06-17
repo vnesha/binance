@@ -5,34 +5,34 @@ import { toast } from "react-toastify";
 import { AxiosError } from "../types/types";
 import axios from "axios";
 
-const cancelOrder = async ({
+const changeLeverage = async ({
   symbol,
-  orderId,
+  leverage,
 }: {
   symbol: string;
-  orderId: number;
+  leverage: number;
 }) => {
-    const BASE_URL = `${API_URL}/fapi/v1/order`;
+    const BASE_URL = `${API_URL}/fapi/v1/leverage`;
   
     const params = {
       symbol: symbol,
-      orderId: orderId,
+      leverage: leverage,
       timestamp: Date.now(),
     };
   
     const config = postData(params);
   
-    const response = await axios.delete(BASE_URL, config);
+    const response = await axios.post(BASE_URL, null, config);
     return response.data;
   };
   
-  export const useCancelOrder = () => {
+  export const useChangeLeverage = () => {
     const queryClient = useQueryClient();
-    const mutation = useMutation(cancelOrder, {
+    const mutation = useMutation(changeLeverage, {
       onSuccess: (data) => {
-        queryClient.invalidateQueries({ queryKey: ["openOrders"] });
+        queryClient.invalidateQueries({ queryKey: ["position"] });
         setTimeout(() => {
-          toast.success("Leverage adjustment successful ", {
+          toast.success("Leverage adjustment successful", {
             position: "bottom-right",
             autoClose: 5000,
             hideProgressBar: true,
@@ -43,7 +43,7 @@ const cancelOrder = async ({
             theme: "dark",
           });
         }, 1000);
-        console.log("Order canceled successfully", data);
+        console.log("Leverage adjustment successful", data);
       },
 
       onError: (error: AxiosError) => {
@@ -53,7 +53,7 @@ const cancelOrder = async ({
           const serverError = error.response.data;
           errorMsg = `${serverError.msg}`;
         }
-        console.error("Error closing position", errorMsg);
+        console.error("Error Leverage adjustment", errorMsg);
         
         toast.error(errorMsg, {
           position: "bottom-right",
