@@ -105,3 +105,8 @@ export type CombinedDataType = AccountType & PositionType & SymbolInfo & {
   };
 }
   
+export type rangeSliderProps = {
+  initialMargin: number;
+  selectedPosition: number;
+  selectedSymbol: string;
+};
