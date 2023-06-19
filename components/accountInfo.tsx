@@ -4,7 +4,7 @@ import { usePositionData } from "@/app/hooks/useAllPositionData";
 import { CombinedDataType } from "@/app/types/types";
 import { formatLocale } from "@/util/formatingNumber";
 
-export default function AccountInfo() {
+export default function AccountInfo({ className }: { className?: string }) {
   const { combinedData } = usePositionData();
   const [totalUnrealizedProfit, setTotalUnrealizedProfit] = useState<
     number | null
@@ -17,7 +17,7 @@ export default function AccountInfo() {
       ? parseFloat(walletBalance.toString()).toLocaleString("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }) + "USDT"
+        }) + " USDT"
       : "0.00 USDT";
 
   const availableBalance =
@@ -52,28 +52,39 @@ export default function AccountInfo() {
   }, [combinedData]);
 
   return (
-    <div>
-      {" "}
-      <div className="mt-6 text-xs">
-        Wallet Balance: {formattedWalletBalance}
+    <div className={className}>
+      <div className="mb-4 text-sm font-bold text-gray-lighter">
+        USDⓈ-M Account
       </div>
-      <div className="mt-6 text-xs">
-        Total Balance:{" "}
-        {totalBalance !== null ? formatLocale(totalBalance) : null}
+      <div className="mb-2 flex items-center justify-between text-gray-lighter">
+        <div className="font-bold">Total Balance</div>
+        <div className="font-bold">
+          {totalBalance !== null ? formatLocale(totalBalance) : null}
+        </div>
       </div>
-      <div className="text-xs">
-        PNL:{" "}
-        {totalUnrealizedProfit !== null
-          ? formatLocale(totalUnrealizedProfit)
-          : null}
+      <div className="flex items-center justify-between">
+        <div>Wallet Balance</div>
+        <div className="font-bold text-gray-lighter">
+          {formattedWalletBalance}
+        </div>
       </div>
-      <div className="text-xs">
+      <div className="mb-[2px] flex items-center justify-between pt-[2px]">
+        <div>Available Balance</div>
+        <div className="font-bold text-gray-lighter">
+          {availableBalance !== null ? formatLocale(availableBalance) : null}
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <div>Total Unrealized PNL</div>
+        <div className="font-bold text-gray-lighter">
+          {totalUnrealizedProfit !== null
+            ? formatLocale(totalUnrealizedProfit)
+            : null}
+        </div>
+      </div>
+      {/* <div>
         Margin: {totalMargin !== null ? formatLocale(totalMargin) : null}
-      </div>
-      <div className="text-xs">
-        Avbl:{" "}
-        {availableBalance !== null ? formatLocale(availableBalance) : null}
-      </div>
+      </div> */}
     </div>
   );
 }

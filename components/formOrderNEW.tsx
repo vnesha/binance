@@ -5,6 +5,7 @@ import { usePositionData } from "@/app/hooks/useAllPositionData";
 import { useEffect, useState } from "react";
 import { DialogLeverage } from "./dialogLeverage";
 import { SelectSymbol } from "./selectSymbol";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AccountInfo from "@/components/accountInfo";
 
 function NewOrderForm() {
@@ -98,9 +99,9 @@ function NewOrderForm() {
   }
 
   return (
-    <div className="w-[255px] bg-gray-middle-light px-4">
+    <div className="w-[300px] bg-gray-middle-light px-4">
       <form onSubmit={formik.handleSubmit}>
-        <div className="flex items-center justify-between font-bold">
+        <div className="flex items-center justify-between pb-2 font-bold">
           <div className="flex flex-col items-start">
             <SelectSymbol
               selectedSymbol={selectedSymbol || ""}
@@ -108,8 +109,8 @@ function NewOrderForm() {
               placeholder={placeholder || ""}
             />
           </div>
-          <div className="mt-3 flex w-1/3 flex-col space-y-1 text-center text-xs font-bold">
-            <div className="rounded-sm bg-gray-light-middle px-6 py-[2px]">
+          <div className="mt-3 space-y-1  text-center text-xs font-bold">
+            <div className="rounded-sm bg-gray-light-middle py-[2px]">
               Cross
             </div>
             <DialogLeverage
@@ -120,7 +121,15 @@ function NewOrderForm() {
             />
           </div>
         </div>
-        <AccountInfo />
+        <Tabs defaultValue="Market">
+          <TabsList className="pr-[100px]">
+            <TabsTrigger value="Limit">Limit</TabsTrigger>
+            <TabsTrigger value="Market">Market</TabsTrigger>
+          </TabsList>
+          <TabsContent value="Limit"></TabsContent>
+          <TabsContent value="Market"></TabsContent>
+        </Tabs>
+        <AccountInfo className="mt-4 flex flex-col border-y-[1px] border-gray py-4 text-xs" />
         <button className="mt-40" type="submit">
           Submit
         </button>

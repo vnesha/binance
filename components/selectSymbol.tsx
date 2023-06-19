@@ -23,7 +23,7 @@ export function SelectSymbol({
 
   return (
     <Select onValueChange={handleSelect} value={selectedSymbol || undefined}>
-      <SelectTrigger>
+      <SelectTrigger className="text-gray-lighter">
         <SelectValue placeholder={placeholder}>{selectedSymbol}</SelectValue>
       </SelectTrigger>
       <SelectContent>
@@ -35,7 +35,9 @@ export function SelectSymbol({
           ))}
         </ScrollArea>
       </SelectContent>
-      <div className="m-0 p-0 text-sm font-medium">Perpetual</div>
+      <div className="m-0 p-0 text-sm font-medium text-gray-lighter">
+        Perpetual
+      </div>
     </Select>
   );
 }

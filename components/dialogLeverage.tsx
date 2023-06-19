@@ -24,9 +24,9 @@ export function DialogLeverage({
     <div>
       <Dialog>
         <DialogTrigger>
-          <span className="rounded-sm bg-gray-light-middle px-[27px] py-[2px] hover:bg-gray-middle">
+          <div className="rounded-sm bg-gray-light-middle px-8 py-[2px] hover:bg-gray-middle">
             {selectedPosition}x
-          </span>
+          </div>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[384px] md:max-w-[384px] lg:max-w-[384px]">
           <DialogHeader>
