@@ -1,4 +1,4 @@
-import NewOrderForm from "@/components/formOrderNEW";
+import NewOrderForm from "@/components/formOrderSL";
 
 const Test = () => {
   return <NewOrderForm />;

@@ -3,7 +3,7 @@ import { usePositionData } from "../hooks/useAllPositionData";
 import { CombinedDataType } from "../types/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PositionHeader } from "@/components/headerPosition";
-import { OrderForm } from "@/components/formOrder";
+import { OrderForm } from "@/components/formOrderRegular";
 import { ToastContainer } from "react-toastify";
 import { useOpenOrdersData } from "../hooks/useOpenOrdersData";
 import PositionDataRow from "@/components/rowPositions";
@@ -12,7 +12,7 @@ import { Order } from "../types/types";
 import { OpenOrdersHeaader } from "@/components/headerOpenOrders";
 import AdvancedChart from "@/components/chartAdvanced";
 import "react-toastify/dist/ReactToastify.css";
-import NewOrderForm from "@/components/formOrderNEW";
+import NewOrderForm from "@/components/formOrderSL";
 // tailwindcss: text-green text-red bg-green bg-red
 
 function CryptoPage() {

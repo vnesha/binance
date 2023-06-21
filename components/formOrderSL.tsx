@@ -7,6 +7,7 @@ import { DialogLeverage } from "./dialogLeverage";
 import { SelectSymbol } from "./selectSymbol";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AccountInfo from "@/components/accountInfo";
+import TextInputField from "./textInputField";
 
 function NewOrderForm() {
   const { positions, perpetualSymbols, leverageBrackets } = usePositionData();
@@ -101,7 +102,7 @@ function NewOrderForm() {
   return (
     <div className="w-[300px] bg-gray-middle-light px-4">
       <form onSubmit={formik.handleSubmit}>
-        <div className="flex items-center justify-between pb-2 font-bold">
+        <div className="flex items-center justify-between border-b-[1px] border-gray-dark/60 pb-4 font-bold">
           <div className="flex flex-col items-start">
             <SelectSymbol
               selectedSymbol={selectedSymbol || ""}
@@ -109,7 +110,7 @@ function NewOrderForm() {
               placeholder={placeholder || ""}
             />
           </div>
-          <div className="mt-3 space-y-1  text-center text-xs font-bold">
+          <div className="mt-4 space-y-1  text-center text-xs font-bold">
             <div className="rounded-sm bg-gray-light-middle py-[2px]">
               Cross
             </div>
@@ -127,9 +128,24 @@ function NewOrderForm() {
             <TabsTrigger value="Market">Market</TabsTrigger>
           </TabsList>
           <TabsContent value="Limit"></TabsContent>
-          <TabsContent value="Market"></TabsContent>
+          <TabsContent value="Market">
+            <div className="flex flex-row justify-between">
+              <TextInputField
+                label="Risk On Trade"
+                sufix="%"
+                className="w-[60%]"
+                defaultValue={1}
+              />
+              <TextInputField
+                label="R/R"
+                className="w-[35%]"
+                defaultValue={3}
+              />
+            </div>
+            <TextInputField label="Stop Loss" sufix="USDT" className="w-full" />
+          </TabsContent>
         </Tabs>
-        <AccountInfo className="mt-4 flex flex-col border-y-[1px] border-gray py-4 text-xs" />
+        <AccountInfo className="mt-4 flex select-none flex-col border-y-[1px] border-gray-dark/60 py-4 text-xs" />
         <button className="mt-40" type="submit">
           Submit
         </button>
