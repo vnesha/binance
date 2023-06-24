@@ -94,9 +94,12 @@ export const formatLocale = (number: number | null): string => {
   if (number === null) {
     return "0.00 USDT";
   }
-  return number.toLocaleString("en-US", {
+  const stringNumber = String(number); // pretvara broj u string
+  const backToNumber = parseFloat(stringNumber); // pretvara string nazad u broj
+  return backToNumber.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }) + " USDT";
 };
+
   

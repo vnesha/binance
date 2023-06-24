@@ -54,6 +54,23 @@ export const usePositionData = () => {
 
   const symbolToWebSocket = useRef<{ [symbol: string]: WebSocket }>({});
 
+  // const listenToSymbolPrice = (symbol: string, callback: (price: string) => void) => {
+  //   const ws = new WebSocket(`wss://fstream.binance.com/ws/${symbol.toLowerCase()}@trade`);
+
+  //   ws.onerror = (error) => {
+  //     console.error(`WebSocket error: ${error}`);
+  //   };
+
+  //   ws.onmessage = (event) => {
+  //     const message = JSON.parse(event.data) as BinanceResponse;
+
+  //     if (message.s && message.s.toUpperCase() === symbol.toUpperCase()) {
+  //       const livePrice = message.p || ""; // Use empty string as default value
+  //       callback(livePrice);
+  //     }
+  //   };
+  // };
+
   useEffect(() => {
     if (lastJsonMessage) {
       const message = lastJsonMessage as BinanceResponse;
@@ -249,12 +266,6 @@ export const usePositionData = () => {
                 if (item.symbol === currentSymbol) {
                   const { unrealizedProfit, margin, roe } =
                     calculateUnrealizedProfitAndMarginROE(message.p, item);
-
-                    // const totalUnrealizedProfit = initialCombinedData.reduce(
-                    //   (acc: number, position: CombinedDataType) =>
-                    //     acc + position.unrealizedProfit,
-                    //   0
-                    // );
                   
                     return {
                     ...item,
@@ -292,5 +303,6 @@ export const usePositionData = () => {
     positions: positions.data,
     exchangeInfo: exchangeInfo.data,
     leverageBrackets: leverageBrackets.data,
+    // listenToSymbolPrice
   };
 };

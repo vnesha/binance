@@ -12,26 +12,6 @@ export default function AccountInfo({ className }: { className?: string }) {
   const [totalMargin, setTotalMargin] = useState<number | null>(0);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
-  const formattedWalletBalance =
-    walletBalance !== null
-      ? parseFloat(walletBalance.toString()).toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }) + " USDT"
-      : "0.00 USDT";
-
-  const availableBalance =
-    walletBalance !== null &&
-    totalUnrealizedProfit !== null &&
-    totalMargin !== null
-      ? walletBalance - Math.abs(totalUnrealizedProfit) - totalMargin
-      : 0;
-
-  const totalBalance =
-    walletBalance !== null && totalUnrealizedProfit !== null
-      ? walletBalance - Math.abs(totalUnrealizedProfit)
-      : 0;
-
   useEffect(() => {
     if (combinedData.length > 0) {
       const totalProfit = combinedData.reduce(
@@ -51,6 +31,32 @@ export default function AccountInfo({ className }: { className?: string }) {
     }
   }, [combinedData]);
 
+  const formattedWalletBalance =
+    walletBalance !== null
+      ? parseFloat(walletBalance.toString()).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) + " USDT"
+      : "0.00 USDT";
+
+  const availableBalance =
+    walletBalance !== null &&
+    totalUnrealizedProfit !== null &&
+    totalMargin !== null
+      ? totalUnrealizedProfit >= 0
+        ? walletBalance - totalMargin + Math.abs(totalUnrealizedProfit)
+        : walletBalance - Math.abs(totalUnrealizedProfit) - totalMargin
+      : 0;
+
+  const totalBalance =
+    walletBalance !== null &&
+    totalUnrealizedProfit !== null &&
+    totalMargin !== null
+      ? totalUnrealizedProfit >= 0
+        ? availableBalance + totalMargin
+        : walletBalance - Math.abs(totalUnrealizedProfit)
+      : 0;
+
   return (
     <div className={className}>
       <div className="mb-4 text-sm font-bold text-gray-lighter">
@@ -58,9 +64,7 @@ export default function AccountInfo({ className }: { className?: string }) {
       </div>
       <div className="mb-2 flex items-center justify-between text-gray-lighter">
         <div className="font-bold">Total Balance</div>
-        <div className="font-bold">
-          {totalBalance !== null ? formatLocale(totalBalance) : null}
-        </div>
+        <div className="font-bold">{formatLocale(totalBalance)}</div>
       </div>
       <div className="flex items-center justify-between">
         <div>Wallet Balance</div>

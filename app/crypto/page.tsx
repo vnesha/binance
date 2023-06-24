@@ -34,10 +34,10 @@ function CryptoPage() {
         <div className="w-full">{/* <AdvancedChart /> */}</div>
         <div className="flex w-[600px] bg-black">
           <NewOrderForm />
-          <OrderForm
+          {/* <OrderForm
             perpetualSymbols={perpetualSymbols}
             baseAssetAll={baseAssetAll}
-          />
+          /> */}
         </div>
       </div>
       <div className="pl-4 pr-4">
