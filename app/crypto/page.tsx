@@ -12,7 +12,7 @@ import { Order } from "../types/types";
 import { OpenOrdersHeaader } from "@/components/headerOpenOrders";
 import AdvancedChart from "@/components/chartAdvanced";
 import "react-toastify/dist/ReactToastify.css";
-import NewOrderForm from "@/components/formOrderSL";
+import FormOrderSl from "@/components/formOrderSL";
 // tailwindcss: text-green text-red bg-green bg-red
 
 function CryptoPage() {
@@ -32,8 +32,8 @@ function CryptoPage() {
     <div>
       <div className="flex">
         <div className="w-full">{/* <AdvancedChart /> */}</div>
-        <div className="flex w-[600px] bg-black">
-          <NewOrderForm />
+        <div className="flex bg-black">
+          <FormOrderSl />
           {/* <OrderForm
             perpetualSymbols={perpetualSymbols}
             baseAssetAll={baseAssetAll}

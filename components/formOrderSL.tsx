@@ -9,28 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AccountInfo from "@/components/accountInfo";
 import TextInputField from "./textInputField";
 import useAllLivePrices from "@/app/hooks/useAllLivePrice";
-import { formatLocale } from "@/util/formatingNumber";
 
-function NewOrderForm() {
-  const { positions, perpetualSymbols, leverageBrackets } = usePositionData();
-  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("selectedSymbol") || null;
-    }
-    return null;
-  });
-  const [selectedPosition, setSelectedPosition] = useState<number>(20);
-  const [selectedLeverage, setSelectedLeverage] = useState<number>();
-  const [hasMounted, setHasMounted] = useState(false);
+function FormOrderSl() {
+  const { positions, perpetualSymbols, leverageBrackets, exchangeInfo } =
+    usePositionData();
   const [tab, setTab] = useState<string>("Market");
-  const [livePrice, setLivePrice] = useState<number | null>(null);
-  const [placeholder] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("selectedSymbol") || "BTCUSDT";
-    } else {
-      return null;
-    }
-  });
 
   const formik = useFormik({
     initialValues: {
@@ -52,6 +35,22 @@ function NewOrderForm() {
     setTab(value);
     formik.setFieldValue("type", value);
   };
+
+  const [selectedPosition, setSelectedPosition] = useState<number>(20);
+  const [selectedLeverage, setSelectedLeverage] = useState<number>();
+  const [placeholder] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedSymbol") || "BTCUSDT";
+    } else {
+      return null;
+    }
+  });
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedSymbol") || null;
+    }
+    return null;
+  });
 
   useEffect(() => {
     if (perpetualSymbols.length > 0 && selectedSymbol === null) {
@@ -105,16 +104,44 @@ function NewOrderForm() {
     [positions, leverageBrackets, formik]
   );
 
+  const symbolInfo = exchangeInfo?.symbols.find(
+    (info: { symbol: string }) => info.symbol === selectedSymbol
+  );
+  const lotSizeFilter = symbolInfo?.filters.find(
+    (filter: { filterType: string }) => filter.filterType === "LOT_SIZE"
+  );
+  const stepSize = lotSizeFilter?.stepSize;
+  const baseAssetPrecision = stepSize?.indexOf(1) - 1;
+  const [livePrice, setLivePrice] = useState<number | null>(null);
   const allLivePrices = useAllLivePrices(selectedSymbol || "");
+  const streamPrice = livePrice !== null ? parseFloat(livePrice.toString()) : 0;
+  const [priceFormatted, setPriceFormatted] = useState(false);
+  const zeroFormatted =
+    symbolInfo?.pricePrecision != null
+      ? (0).toLocaleString("en-US", {
+          minimumFractionDigits: symbolInfo.pricePrecision,
+          maximumFractionDigits: symbolInfo.pricePrecision,
+        })
+      : "";
+
+  const livePriceFormatted =
+    priceFormatted && streamPrice && !isNaN(streamPrice)
+      ? streamPrice.toLocaleString("en-US", {
+          minimumFractionDigits: symbolInfo?.pricePrecision,
+          maximumFractionDigits: symbolInfo?.pricePrecision,
+        })
+      : zeroFormatted;
 
   useEffect(() => {
     let isMounted = true;
 
     if (allLivePrices && selectedSymbol) {
-      const newLivePrice = parseFloat(allLivePrices[selectedSymbol]); // preoblikovanje u number
-      setLivePrice(newLivePrice); // ažuriranje stanja livePrice
+      const newLivePrice = parseFloat(allLivePrices[selectedSymbol]);
       if (isMounted) {
-        console.log(livePrice);
+        if (newLivePrice === streamPrice) {
+          setPriceFormatted(true);
+        }
+        setLivePrice(newLivePrice);
       }
     }
 
@@ -123,6 +150,10 @@ function NewOrderForm() {
     };
   }, [allLivePrices, selectedSymbol]);
 
+  console.log("livePrice", livePrice);
+
+  const [hasMounted, setHasMounted] = useState(false);
+
   useEffect(() => {
     setHasMounted(true);
   }, [selectedSymbol, positions, leverageBrackets, perpetualSymbols]);
@@ -130,14 +161,6 @@ function NewOrderForm() {
   if (!hasMounted) {
     return null;
   }
-
-  const livePriceNumber =
-    livePrice !== null ? parseFloat(livePrice.toString()) : 0;
-  const slNumber = formik.values.sl ? parseFloat(formik.values.sl) : 0;
-
-  const livePriceFormatted = isNaN(livePriceNumber)
-    ? ""
-    : formatLocale(livePriceNumber);
 
   return (
     <div className="w-[300px] bg-gray-middle-light px-4">
@@ -219,4 +242,4 @@ function NewOrderForm() {
   );
 }
 
-export default NewOrderForm;
+export default FormOrderSl;
