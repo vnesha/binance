@@ -70,13 +70,13 @@ const useAllLivePrices = (
             if (previousPrice !== null) {
               if (currentPrice > previousPrice) {
                 direction = "up";
-                console.log(`${currentPrice} is greater than ${previousPrice}`);
+                // console.log(`${currentPrice} is greater than ${previousPrice}`);
               } else if (currentPrice < previousPrice) {
                 direction = "down";
-                console.log(`${currentPrice} is less than ${previousPrice}`);
+                // console.log(`${currentPrice} is less than ${previousPrice}`);
               } else {
                 direction = "equally";
-                console.log(`${currentPrice} is equal to ${previousPrice}`);
+                // console.log(`${currentPrice} is equal to ${previousPrice}`);
               }
             }
     

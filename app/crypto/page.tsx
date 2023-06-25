@@ -13,6 +13,7 @@ import { OpenOrdersHeaader } from "@/components/headerOpenOrders";
 import AdvancedChart from "@/components/chartAdvanced";
 import "react-toastify/dist/ReactToastify.css";
 import FormOrderSl from "@/components/formOrderSL";
+
 // tailwindcss: text-green text-red bg-green bg-red
 
 function CryptoPage() {

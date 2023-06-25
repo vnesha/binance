@@ -15,10 +15,25 @@ export default function FormOrderSl() {
   const { positions, perpetualSymbols, leverageBrackets, exchangeInfo } =
     usePositionData();
   const [tab, setTab] = useState<string>("Market");
+  const [selectedPosition, setSelectedPosition] = useState<number>(20);
+  const [selectedLeverage, setSelectedLeverage] = useState<number>();
+  const [placeholder] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedSymbol") || "BTCUSDT";
+    } else {
+      return null;
+    }
+  });
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedSymbol") || null;
+    }
+    return null;
+  });
 
   const formik = useFormik({
     initialValues: {
-      symbol: "",
+      symbol: selectedSymbol || "",
       sl: "",
       type: tab,
     },
@@ -36,22 +51,6 @@ export default function FormOrderSl() {
     setTab(value);
     formik.setFieldValue("type", value);
   };
-
-  const [selectedPosition, setSelectedPosition] = useState<number>(20);
-  const [selectedLeverage, setSelectedLeverage] = useState<number>();
-  const [placeholder] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("selectedSymbol") || "BTCUSDT";
-    } else {
-      return null;
-    }
-  });
-  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("selectedSymbol") || null;
-    }
-    return null;
-  });
 
   const handleSelect = selectSymbol(
     perpetualSymbols,

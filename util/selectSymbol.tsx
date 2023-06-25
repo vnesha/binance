@@ -10,14 +10,14 @@ export function selectSymbol(
   leverageBrackets: any,
   setSelectedLeverage: any
 ) {
-  useEffect(() => {
-    if (perpetualSymbols.length > 0 && selectedSymbol === null) {
-      let initialSymbol =
-        localStorage.getItem("selectedSymbol") || perpetualSymbols[0];
-      setSelectedSymbol(initialSymbol);
-      formik.setFieldValue("symbol", initialSymbol);
-    }
-  }, [perpetualSymbols, selectedSymbol, formik]);
+  // useEffect(() => {
+  //   if (perpetualSymbols.length > 0 && selectedSymbol === null) {
+  //     let initialSymbol =
+  //       localStorage.getItem("selectedSymbol") || perpetualSymbols[0];
+  //     setSelectedSymbol(initialSymbol);
+  //     formik.setFieldValue("symbol", initialSymbol);
+  //   }
+  // }, [perpetualSymbols, selectedSymbol, formik]);
 
   useEffect(() => {
     if (selectedSymbol && positions && positions.length > 0) {
