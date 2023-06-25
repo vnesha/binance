@@ -1,16 +1,17 @@
 "use client";
 import { useFormik } from "formik";
-import { useCallback } from "react";
-import { usePositionData } from "@/app/hooks/useAllPositionData";
 import { useEffect, useState } from "react";
+import { usePositionData } from "@/app/hooks/useAllPositionData";
 import { DialogLeverage } from "./dialogLeverage";
 import { SelectSymbol } from "./selectSymbol";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AccountInfo from "@/components/accountInfo";
 import TextInputField from "./textInputField";
-import useAllLivePrices from "@/app/hooks/useAllLivePrice";
+import { DisplayStreamPrice } from "./displayStreamPrice";
+import { selectSymbol } from "@/util/selectSymbol";
+import { setLivePrice } from "@/util//setLivePrice";
 
-function FormOrderSl() {
+export default function FormOrderSl() {
   const { positions, perpetualSymbols, leverageBrackets, exchangeInfo } =
     usePositionData();
   const [tab, setTab] = useState<string>("Market");
@@ -52,105 +53,25 @@ function FormOrderSl() {
     return null;
   });
 
-  useEffect(() => {
-    if (perpetualSymbols.length > 0 && selectedSymbol === null) {
-      let initialSymbol =
-        localStorage.getItem("selectedSymbol") || perpetualSymbols[0];
-      setSelectedSymbol(initialSymbol);
-      formik.setFieldValue("symbol", initialSymbol);
-    }
-  }, [perpetualSymbols, selectedSymbol, formik]);
-
-  useEffect(() => {
-    if (selectedSymbol && positions && positions.length > 0) {
-      const foundPosition = positions.find(
-        (position: any) => position.symbol === selectedSymbol
-      );
-      if (foundPosition) {
-        setSelectedPosition(foundPosition.leverage);
-        if (leverageBrackets) {
-          const leverageBracket = leverageBrackets.find(
-            (bracket: any) => bracket.symbol === selectedSymbol
-          );
-          if (leverageBracket) {
-            setSelectedLeverage(leverageBracket.brackets[0].initialLeverage);
-          }
-        }
-      }
-    }
-  }, [selectedSymbol, positions, leverageBrackets]);
-
-  const handleSelect = useCallback(
-    (symbol: string) => {
-      localStorage.setItem("selectedSymbol", symbol);
-      setSelectedSymbol(symbol);
-      formik.setFieldValue("symbol", symbol);
-
-      if (positions && leverageBrackets) {
-        const foundPosition = positions.find(
-          (position: any) => position.symbol === symbol
-        );
-        const leverageBracket = leverageBrackets.find(
-          (bracket: any) => bracket.symbol === symbol
-        );
-        if (foundPosition) {
-          setSelectedPosition(foundPosition.leverage);
-        }
-        if (leverageBracket) {
-          setSelectedLeverage(leverageBracket.brackets[0].initialLeverage);
-        }
-      }
-    },
-    [positions, leverageBrackets, formik]
+  const handleSelect = selectSymbol(
+    perpetualSymbols,
+    selectedSymbol,
+    setSelectedSymbol,
+    formik,
+    positions,
+    setSelectedPosition,
+    leverageBrackets,
+    setSelectedLeverage
   );
 
-  const symbolInfo = exchangeInfo?.symbols.find(
-    (info: { symbol: string }) => info.symbol === selectedSymbol
-  );
-  const lotSizeFilter = symbolInfo?.filters.find(
-    (filter: { filterType: string }) => filter.filterType === "LOT_SIZE"
-  );
-  const stepSize = lotSizeFilter?.stepSize;
-  const baseAssetPrecision = stepSize?.indexOf(1) - 1;
-  const [livePrice, setLivePrice] = useState<number | null>(null);
-  const allLivePrices = useAllLivePrices(selectedSymbol || "");
-  const streamPrice = livePrice !== null ? parseFloat(livePrice.toString()) : 0;
-  const [priceFormatted, setPriceFormatted] = useState(false);
-  const zeroFormatted =
-    symbolInfo?.pricePrecision != null
-      ? (0).toLocaleString("en-US", {
-          minimumFractionDigits: symbolInfo.pricePrecision,
-          maximumFractionDigits: symbolInfo.pricePrecision,
-        })
-      : "";
-
-  const livePriceFormatted =
-    priceFormatted && streamPrice && !isNaN(streamPrice)
-      ? streamPrice.toLocaleString("en-US", {
-          minimumFractionDigits: symbolInfo?.pricePrecision,
-          maximumFractionDigits: symbolInfo?.pricePrecision,
-        })
-      : zeroFormatted;
-
-  useEffect(() => {
-    let isMounted = true;
-
-    if (allLivePrices && selectedSymbol) {
-      const newLivePrice = parseFloat(allLivePrices[selectedSymbol]);
-      if (isMounted) {
-        if (newLivePrice === streamPrice) {
-          setPriceFormatted(true);
-        }
-        setLivePrice(newLivePrice);
-      }
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [allLivePrices, selectedSymbol]);
-
-  console.log("livePrice", livePrice);
+  const {
+    isPriceUp,
+    isPriceDown,
+    isPriceEqually,
+    isChanged,
+    isPriceValid,
+    livePriceFormatted,
+  } = setLivePrice(exchangeInfo, selectedSymbol);
 
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -185,9 +106,15 @@ function FormOrderSl() {
             />
           </div>
         </div>
-        <div className="mt-4 flex h-6 items-center border-b-[1px] border-gray-dark/60 pb-6 pt-1">
-          {livePriceFormatted}
-        </div>
+        <DisplayStreamPrice
+          isPriceUp={isPriceUp}
+          isPriceDown={isPriceDown}
+          isPriceEqually={isPriceEqually}
+          isChanged={isChanged}
+          isPriceValid={isPriceValid}
+          livePriceFormatted={livePriceFormatted}
+        ></DisplayStreamPrice>
+
         <Tabs defaultValue="Market">
           <TabsList className="pr-[100px]">
             <TabsTrigger value="Limit" onClick={() => handleTabChange("Limit")}>
@@ -241,5 +168,3 @@ function FormOrderSl() {
     </div>
   );
 }
-
-export default FormOrderSl;
