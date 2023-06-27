@@ -15,7 +15,7 @@ const openOrder = async ({
   stopLossPrice = null,
   takeProfitPrice = null,
 }: {
-  symbol: string;
+  symbol: string | null;
   quantity: number;
   side: 'BUY' | 'SELL';
   type?: 'MARKET' | 'LIMIT';
@@ -117,7 +117,6 @@ export const useOpenOrder = () => {
           theme: "dark",
         });
       }, 1000);
-      console.log("Position opened successfully", data);
     },
 
     onError: (error: AxiosError) => {
@@ -127,8 +126,6 @@ export const useOpenOrder = () => {
         const serverError = error.response.data;
         errorMsg = `${serverError.msg}`;
       }
-      console.error("Error closing position", errorMsg);
-
       toast.error(errorMsg, {
         position: "bottom-right",
         autoClose: 5000,

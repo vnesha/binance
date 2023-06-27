@@ -38,5 +38,7 @@ export function setLivePrice(exchangeInfo: any, selectedSymbol: string | null) {
     isChanged,
     isPriceValid,
     livePriceFormatted,
+    livePrice: streamPrice,
+    baseAssetPrecision,
   };
 }

@@ -102,4 +102,16 @@ export const formatLocale = (number: number | null): string => {
   }) + " USDT";
 };
 
+export const formatLocaleSufix = (number: number | null, asset: string): string => {
+  if (number === null) {
+    return `0.00 ${asset}`;
+  }
+  const stringNumber = String(number); // pretvara broj u string
+  const backToNumber = parseFloat(stringNumber); // pretvara string nazad u broj
+  return `${backToNumber.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} ${asset}`;
+};
+
   

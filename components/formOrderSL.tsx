@@ -5,15 +5,24 @@ import { usePositionData } from "@/app/hooks/useAllPositionData";
 import { DialogLeverage } from "./dialogLeverage";
 import { SelectSymbol } from "./selectSymbol";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AccountInfo from "@/components/accountInfo";
+import AccountInfo from "@/components/infoAccount";
 import TextInputField from "./textInputField";
 import { DisplayStreamPrice } from "./displayStreamPrice";
 import { selectSymbol } from "@/util/selectSymbol";
 import { setLivePrice } from "@/util//setLivePrice";
+import TradingInfo from "./infoTrading";
+import { useOpenOrder } from "@/app/hooks/useOpenPosition";
+import { funCalcCharacter } from "@/util/funCalcCharacter";
 
 export default function FormOrderSl() {
-  const { positions, perpetualSymbols, leverageBrackets, exchangeInfo } =
-    usePositionData();
+  const {
+    combinedData,
+    positions,
+    perpetualSymbols,
+    leverageBrackets,
+    exchangeInfo,
+  } = usePositionData();
+  const openOrderMutation = useOpenOrder();
   const [tab, setTab] = useState<string>("Market");
   const [selectedPosition, setSelectedPosition] = useState<number>(20);
   const [selectedLeverage, setSelectedLeverage] = useState<number>();
@@ -30,26 +39,46 @@ export default function FormOrderSl() {
     }
     return null;
   });
+  const [side, setSide] = useState<"BUY" | "SELL">("BUY");
+  const [quantity, setQuantity] = useState<number>(0);
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [riskDollars, setriskDollars] = useState<number>(0);
+  const [quoteAsset, setQuoteAsset] = useState<string>("");
 
   const formik = useFormik({
     initialValues: {
-      symbol: selectedSymbol || "",
-      sl: "",
+      symbol: selectedSymbol,
+      quantity: quantity,
+      side: side,
       type: tab,
+      sl: "",
+      riskPrecent: 1,
     },
     onSubmit: async (values) => {
       console.log(values);
-      // await openMarkOrderMutation.mutateAsync({
-      //   symbol: values.selectedSymbol,
-      //   quantity: parseFloat(values.quantity),
-      //   side: selectedSide,
-      // });
+      await openOrderMutation.mutateAsync({
+        symbol: selectedSymbol,
+        quantity: values.quantity,
+        side: side,
+      });
     },
   });
+
+  const riskPrecent = formik.values.riskPrecent;
+
+  useEffect(() => {
+    if (combinedData.length > 0) {
+      const balance = combinedData[0].walletBalance;
+      const quoteAsset = combinedData[0].quoteAsset;
+      setWalletBalance(balance);
+      setQuoteAsset(quoteAsset);
+    }
+  }, [combinedData]);
 
   const handleTabChange = (value: string) => {
     setTab(value);
     formik.setFieldValue("type", value);
+    formik.setFieldValue("sl", "");
   };
 
   const handleSelect = selectSymbol(
@@ -70,7 +99,29 @@ export default function FormOrderSl() {
     isChanged,
     isPriceValid,
     livePriceFormatted,
+    livePrice,
+    baseAssetPrecision,
   } = setLivePrice(exchangeInfo, selectedSymbol);
+
+  const sl = parseFloat(formik.values.sl);
+  const streamPrice = parseFloat(livePrice.toString());
+
+  useEffect(() => {
+    if (sl < streamPrice) {
+      setSide("BUY");
+      formik.setFieldValue("side", "BUY");
+    } else if (sl > streamPrice) {
+      setSide("SELL");
+      formik.setFieldValue("side", "SELL");
+    }
+  }, [streamPrice, sl]);
+
+  useEffect(() => {
+    const riskDollars = (riskPrecent * walletBalance) / 100;
+    const quantity = riskDollars / Math.abs(streamPrice - sl);
+    setriskDollars(riskDollars);
+    formik.setFieldValue("quantity", quantity.toFixed(baseAssetPrecision));
+  }, [riskPrecent, walletBalance, streamPrice, sl]);
 
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -135,7 +186,15 @@ export default function FormOrderSl() {
                 sufix="%"
                 className="w-[60%]"
                 defaultValue={1}
-                maxCharacters={3}
+                name="riskPrecent"
+                value={formik.values.riskPrecent}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value.length <= 4) {
+                    formik.setFieldValue("riskPrecent", value);
+                  }
+                }}
+                onBlur={formik.handleBlur}
               />
               <TextInputField
                 type="number"
@@ -154,8 +213,17 @@ export default function FormOrderSl() {
               className="w-full"
               name="sl"
               value={formik.values.sl}
-              onChange={formik.handleChange}
+              onChange={(event) => {
+                funCalcCharacter(event, livePrice, formik);
+              }}
               onBlur={formik.handleBlur}
+            />
+            <TradingInfo
+              className="text-xs"
+              quantity={formik.values.quantity}
+              riskDollars={riskDollars}
+              quoteAsset={quoteAsset}
+              baseAssetPrecision={baseAssetPrecision}
             />
           </TabsContent>
         </Tabs>
