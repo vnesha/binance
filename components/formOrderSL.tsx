@@ -18,6 +18,7 @@ export default function FormOrderSl() {
   const {
     combinedData,
     positions,
+    accountInfo,
     perpetualSymbols,
     leverageBrackets,
     exchangeInfo,
@@ -39,7 +40,6 @@ export default function FormOrderSl() {
     }
     return null;
   });
-  const [isLoaded, setIsLoaded] = useState(false);
   const [side, setSide] = useState<"BUY" | "SELL">("BUY");
   const [quantity, setQuantity] = useState<number>(0.0);
   const [walletBalance, setWalletBalance] = useState<number>(0);
@@ -54,18 +54,21 @@ export default function FormOrderSl() {
       quantity: quantity,
       side: side,
       type: tab,
-      sl: "",
       riskPrecent: 1,
+      sl: "",
       rr: 3,
       tp: tp,
     },
     onSubmit: async (values) => {
-      console.log(values);
-      // await openOrderMutation.mutateAsync({
-      //   symbol: selectedSymbol,
-      //   quantity: values.quantity,
-      //   side: side,
-      // });
+      // console.log(values);
+      await openOrderMutation.mutateAsync({
+        symbol: selectedSymbol,
+        quantity: values.quantity,
+        side: side,
+        stopLossPrice: parseFloat(values.sl),
+        takeProfitPrice: parseFloat(values.tp.toFixed(quotePrecision)),
+      });
+      formik.setFieldValue("sl", "");
     },
   });
 
@@ -74,12 +77,12 @@ export default function FormOrderSl() {
 
   useEffect(() => {
     if (combinedData.length > 0) {
-      const balance = combinedData[0].walletBalance;
       const quoteAsset = combinedData[0].quoteAsset;
-      setWalletBalance(balance);
       setQuoteAsset(quoteAsset);
     }
-  }, [combinedData]);
+    const balance = accountInfo?.totalWalletBalance ?? 0;
+    setWalletBalance(balance);
+  }, [combinedData, accountInfo]);
 
   const handleTabChange = (value: string) => {
     setTab(value);
@@ -118,13 +121,15 @@ export default function FormOrderSl() {
     if (sl < streamPrice) {
       setSide("BUY");
       formik.setFieldValue("side", "BUY");
-      const tp = streamPrice + (streamPrice - sl) * rr;
+      console.log(side);
+      const tp = streamPrice + Math.abs(streamPrice - sl) * rr;
       setTp(tp);
       formik.setFieldValue("tp", tp);
     } else if (sl > streamPrice) {
       setSide("SELL");
       formik.setFieldValue("side", "SELL");
-      const tp = streamPrice - (sl - streamPrice) * rr;
+      console.log(side);
+      const tp = streamPrice - Math.abs(streamPrice - sl) * rr;
       setTp(tp);
       formik.setFieldValue("tp", tp);
     }
@@ -148,7 +153,6 @@ export default function FormOrderSl() {
 
   useEffect(() => {
     setHasMounted(true);
-    setIsLoaded(true);
   }, [selectedSymbol, positions, leverageBrackets, perpetualSymbols]);
 
   if (!hasMounted) {
@@ -248,7 +252,7 @@ export default function FormOrderSl() {
               onBlur={formik.handleBlur}
             />
             <TradingInfo
-              className="text-xs"
+              className="mt-4 text-xs"
               quantity={formik.values.quantity}
               riskDollars={riskDollars}
               quoteAsset={quoteAsset}

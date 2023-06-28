@@ -39,12 +39,16 @@ export default function TradingInfo({
 
   return (
     <div className={className}>
-      <div>
+      <div className="pb-[2px]">
         Quantity {displayQuantity} {baseAsset}
       </div>
-      <div>Size {formatLocaleSufix(rawSize, quoteAsset)}</div>
-      <div>Take Profit {tpFormatted}</div>
-      <div>Risk {formatLocaleSufix(riskDollars, quoteAsset)}</div>
+      <div className="pb-[2px]">
+        Size {formatLocaleSufix(rawSize, quoteAsset)}
+      </div>
+      <div className="pb-[2px]">Take Profit {tpFormatted}</div>
+      <div className="pb-[2px]">
+        Risk {formatLocaleSufix(riskDollars, quoteAsset)}
+      </div>
       <div>Reward</div>
     </div>
   );

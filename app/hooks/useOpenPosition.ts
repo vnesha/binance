@@ -69,11 +69,11 @@ const openOrder = async ({
     const takeProfitMarketParams = {
       symbol: symbol,
       side: side === 'BUY' ? 'SELL' : 'BUY', 
-      type: 'TAKE_PROFIT',
+      type: 'TAKE_PROFIT_MARKET',
       quantity: Math.abs(quantity),
       timestamp: Date.now(),
       stopPrice: takeProfitPrice,
-      price: price,
+      // price: price,
       //closePosition: true,
       // reduceOnly: true,
     };

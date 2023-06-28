@@ -5,12 +5,12 @@ import { CombinedDataType } from "@/app/types/types";
 import { formatLocale } from "@/util/formatingNumber";
 
 export default function AccountInfo({ className }: { className?: string }) {
-  const { combinedData } = usePositionData();
+  const { combinedData, accountInfo } = usePositionData();
   const [totalUnrealizedProfit, setTotalUnrealizedProfit] = useState<
     number | null
   >(0);
   const [totalMargin, setTotalMargin] = useState<number | null>(0);
-  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [walletBalance, setWalletBalance] = useState<number>(0);
 
   useEffect(() => {
     if (combinedData.length > 0) {
@@ -23,16 +23,19 @@ export default function AccountInfo({ className }: { className?: string }) {
         (acc: number, position: CombinedDataType) => acc + position.margin,
         0
       );
-      const balance = combinedData[0].walletBalance;
-
       setTotalUnrealizedProfit(totalProfit);
       setTotalMargin(totalMargin);
-      setWalletBalance(balance);
+    } else {
+      // Nema otvorenih pozicija, postaviti na 0
+      setTotalUnrealizedProfit(0);
+      setTotalMargin(0);
     }
-  }, [combinedData]);
+    const balance = accountInfo?.totalWalletBalance ?? 0;
+    setWalletBalance(balance);
+  }, [combinedData, accountInfo]);
 
   const formattedWalletBalance =
-    walletBalance !== null
+    walletBalance !== null && walletBalance !== undefined
       ? parseFloat(walletBalance.toString()).toLocaleString("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
@@ -68,19 +71,17 @@ export default function AccountInfo({ className }: { className?: string }) {
       </div>
       <div className="flex items-center justify-between">
         <div>Wallet Balance</div>
-        <div className="font-bold text-gray-lighter">
-          {formattedWalletBalance}
-        </div>
+        <div className="text-gray-lighter">{formattedWalletBalance}</div>
       </div>
       <div className="mb-[2px] flex items-center justify-between pt-[2px]">
         <div>Available Balance</div>
-        <div className="font-bold text-gray-lighter">
+        <div className="text-gray-lighter">
           {availableBalance !== null ? formatLocale(availableBalance) : null}
         </div>
       </div>
       <div className="flex items-center justify-between">
         <div>Total Unrealized PNL</div>
-        <div className="font-bold text-gray-lighter">
+        <div className="text-gray-lighter">
           {totalUnrealizedProfit !== null
             ? formatLocale(totalUnrealizedProfit)
             : null}

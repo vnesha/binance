@@ -46,6 +46,7 @@ export const usePositionData = () => {
   const [perpetualSymbols, setPerpetualSymbols] = useState<string[]>([]);
   const [baseAssetAll, setBaseAssetAll] = useState<string[]>([]);
   const [combinedData, setCombinedData] = useState<CombinedDataType[]>([]);
+  const [accountInfo, setAccountInfo] = useState<AccountType>();
   const { lastJsonMessage, readyState } = useWebSocket(null, {
     shouldReconnect: (closeEvent) => true,
     reconnectAttempts: 10,
@@ -223,6 +224,10 @@ export const usePositionData = () => {
 
       setBaseAssetAll(baseAssetArray);
 
+      const accountInfo = account.data;
+      setAccountInfo(accountInfo);
+      console.log(accountInfo);
+      
       const perpetualSymbolsArray = exchangeInfo.data?.symbols
         .filter(
           (symbolData: any) =>
@@ -303,6 +308,6 @@ export const usePositionData = () => {
     positions: positions.data,
     exchangeInfo: exchangeInfo.data,
     leverageBrackets: leverageBrackets.data,
-    // listenToSymbolPrice
+    accountInfo,
   };
 };

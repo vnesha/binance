@@ -35,6 +35,7 @@ export type AccountType = {
     baseAsset: string;
     availableBalance: number;
     unrealizedProfit: number;
+    totalWalletBalance: number;
   };
   
 export type PositionType = {
@@ -55,7 +56,7 @@ export type ExchangeInfoType = {
     pricePrecision: number;
   };
   
-export type CombinedDataType = AccountType & PositionType & SymbolInfo & {
+  export type CombinedDataType = AccountType & PositionType & SymbolInfo & {
     unrealizedProfit: number;
     margin: number;
     roe: number;
@@ -69,8 +70,8 @@ export type CombinedDataType = AccountType & PositionType & SymbolInfo & {
     availableBalance: number;
     walletBalance: number;
     totalUnrealizedProfit: number;
-  };
-
+   };
+   
   export type Order = {
     symbol: string;
     orderId: number;
