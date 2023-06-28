@@ -34,11 +34,9 @@ export default function TextInputField({
     }
     setInputValue(event.target.value);
   };
-  const parsedInputValue = isNaN(Number(inputValue)) ? 0 : Number(inputValue);
+  const parsedInputValue = isNaN(Number(props.value)) ? 0 : Number(props.value);
   const inputClass =
-    componentName === "TextInputField2" && parsedInputValue > 9
-      ? "w-[20px]"
-      : "w-[13px]";
+    componentName === "rr" && parsedInputValue > 9 ? "w-[20px]" : "w-[13px]";
 
   const inputContainerClass = componentName ? "" : "w-full";
 

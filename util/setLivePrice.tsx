@@ -8,10 +8,19 @@ export function setLivePrice(exchangeInfo: any, selectedSymbol: string | null) {
     (info: { symbol: string }) => info.symbol === selectedSymbol
   );
   const lotSizeFilter = symbolInfo?.filters.find(
-    (filter: { filterType: string }) => filter.filterType === "LOT_SIZE"
+    (filter: { filterType: string }) => filter.filterType === "MARKET_LOT_SIZE"
+  );
+  const priceFilter = symbolInfo?.filters.find(
+    (filter: { filterType: string }) => filter.filterType === "PRICE_FILTER"
   );
   const stepSize = lotSizeFilter?.stepSize;
-  const baseAssetPrecision = stepSize?.indexOf(1) - 1;
+  const tickSize = priceFilter?.tickSize;
+  const baseAssetPrecision =
+    stepSize && stepSize.includes(".") ? stepSize.split(".")[1].length : 0;
+  const quotePrecision = tickSize
+    ? tickSize.toString().split(".")[1]?.length || 0
+    : 0;
+  const baseAsset = symbolInfo?.baseAsset;
   const [livePrice, setLivePrice] = useState<number | null>(null);
   const allLivePrices = useAllLivePrices(selectedSymbol || "");
   const priceDirection = selectedSymbol
@@ -31,6 +40,14 @@ export function setLivePrice(exchangeInfo: any, selectedSymbol: string | null) {
     selectedSymbol,
     setLivePrice
   );
+
+  // console.log("lotSizeFilter", lotSizeFilter);
+  // console.log("priceFilter", priceFilter);
+  // console.log("stepSize", stepSize);
+  // console.log("tickSize", tickSize);
+  // console.log("baseAssetPrecision", baseAssetPrecision);
+  // console.log("quotePrecision", quotePrecision);
+
   return {
     isPriceUp,
     isPriceDown,
@@ -40,5 +57,7 @@ export function setLivePrice(exchangeInfo: any, selectedSymbol: string | null) {
     livePriceFormatted,
     livePrice: streamPrice,
     baseAssetPrecision,
+    quotePrecision,
+    baseAsset,
   };
 }

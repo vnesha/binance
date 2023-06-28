@@ -39,11 +39,14 @@ export default function FormOrderSl() {
     }
     return null;
   });
+  const [isLoaded, setIsLoaded] = useState(false);
   const [side, setSide] = useState<"BUY" | "SELL">("BUY");
-  const [quantity, setQuantity] = useState<number>(0);
+  const [quantity, setQuantity] = useState<number>(0.0);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [riskDollars, setriskDollars] = useState<number>(0);
   const [quoteAsset, setQuoteAsset] = useState<string>("");
+  const [tp, setTp] = useState<number>(0);
+  const [size, setSize] = useState<number>(0.0);
 
   const formik = useFormik({
     initialValues: {
@@ -53,18 +56,21 @@ export default function FormOrderSl() {
       type: tab,
       sl: "",
       riskPrecent: 1,
+      rr: 3,
+      tp: tp,
     },
     onSubmit: async (values) => {
       console.log(values);
-      await openOrderMutation.mutateAsync({
-        symbol: selectedSymbol,
-        quantity: values.quantity,
-        side: side,
-      });
+      // await openOrderMutation.mutateAsync({
+      //   symbol: selectedSymbol,
+      //   quantity: values.quantity,
+      //   side: side,
+      // });
     },
   });
 
   const riskPrecent = formik.values.riskPrecent;
+  const rr = formik.values.rr;
 
   useEffect(() => {
     if (combinedData.length > 0) {
@@ -101,6 +107,8 @@ export default function FormOrderSl() {
     livePriceFormatted,
     livePrice,
     baseAssetPrecision,
+    quotePrecision,
+    baseAsset,
   } = setLivePrice(exchangeInfo, selectedSymbol);
 
   const sl = parseFloat(formik.values.sl);
@@ -110,23 +118,37 @@ export default function FormOrderSl() {
     if (sl < streamPrice) {
       setSide("BUY");
       formik.setFieldValue("side", "BUY");
+      const tp = streamPrice + (streamPrice - sl) * rr;
+      setTp(tp);
+      formik.setFieldValue("tp", tp);
     } else if (sl > streamPrice) {
       setSide("SELL");
       formik.setFieldValue("side", "SELL");
+      const tp = streamPrice - (sl - streamPrice) * rr;
+      setTp(tp);
+      formik.setFieldValue("tp", tp);
     }
-  }, [streamPrice, sl]);
+  }, [streamPrice, tp, sl, rr]);
 
   useEffect(() => {
     const riskDollars = (riskPrecent * walletBalance) / 100;
     const quantity = riskDollars / Math.abs(streamPrice - sl);
+    const size = quantity * streamPrice;
     setriskDollars(riskDollars);
-    formik.setFieldValue("quantity", quantity.toFixed(baseAssetPrecision));
-  }, [riskPrecent, walletBalance, streamPrice, sl]);
+    setSize(size);
+    // proveravamo da li je quantity NaN
+    if (isNaN(quantity)) {
+      formik.setFieldValue("quantity", "0.00");
+    } else {
+      formik.setFieldValue("quantity", quantity.toFixed(baseAssetPrecision));
+    }
+  }, [riskPrecent, walletBalance, streamPrice, sl, size]);
 
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
+    setIsLoaded(true);
   }, [selectedSymbol, positions, leverageBrackets, perpetualSymbols]);
 
   if (!hasMounted) {
@@ -200,16 +222,23 @@ export default function FormOrderSl() {
                 type="number"
                 label="R/R"
                 className="w-[35%]"
-                defaultValue={3}
                 prefix="1:"
-                componentName="TextInputField2"
-                maxCharacters={2}
+                componentName="rr"
+                name="rr"
+                value={formik.values.rr}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value.length <= 2) {
+                    formik.setFieldValue("rr", value);
+                  }
+                }}
+                onBlur={formik.handleBlur}
               />
             </div>
             <TextInputField
               type="number"
               label="Stop Loss"
-              sufix="USDT"
+              // sufix="USDT"
               className="w-full"
               name="sl"
               value={formik.values.sl}
@@ -224,6 +253,11 @@ export default function FormOrderSl() {
               riskDollars={riskDollars}
               quoteAsset={quoteAsset}
               baseAssetPrecision={baseAssetPrecision}
+              quotePrecision={quotePrecision}
+              baseAsset={baseAsset}
+              tp={formik.values.tp}
+              sl={formik.values.sl}
+              size={size}
             />
           </TabsContent>
         </Tabs>

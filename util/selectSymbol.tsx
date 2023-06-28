@@ -43,6 +43,8 @@ export function selectSymbol(
       localStorage.setItem("selectedSymbol", symbol);
       setSelectedSymbol(symbol);
       formik.setFieldValue("symbol", symbol);
+      formik.setFieldValue("sl", "");
+      formik.setFieldValue("tp", 0);
 
       if (positions && leverageBrackets) {
         const foundPosition = positions.find(
