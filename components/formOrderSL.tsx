@@ -44,9 +44,9 @@ export default function FormOrderSl() {
   const [quantity, setQuantity] = useState<number>(0.0);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [riskDollars, setriskDollars] = useState<number>(0);
-  const [quoteAsset, setQuoteAsset] = useState<string>("");
   const [tp, setTp] = useState<number>(0);
   const [size, setSize] = useState<number>(0.0);
+  const [loss, setLoss] = useState<string>("0.00");
 
   const formik = useFormik({
     initialValues: {
@@ -58,6 +58,7 @@ export default function FormOrderSl() {
       sl: "",
       rr: 3,
       tp: tp,
+      loss: loss,
     },
     onSubmit: async (values) => {
       // console.log(values);
@@ -76,13 +77,9 @@ export default function FormOrderSl() {
   const rr = formik.values.rr;
 
   useEffect(() => {
-    if (combinedData.length > 0) {
-      const quoteAsset = combinedData[0].quoteAsset;
-      setQuoteAsset(quoteAsset);
-    }
     const balance = accountInfo?.totalWalletBalance ?? 0;
     setWalletBalance(balance);
-  }, [combinedData, accountInfo]);
+  }, [accountInfo]);
 
   const handleTabChange = (value: string) => {
     setTab(value);
@@ -112,10 +109,22 @@ export default function FormOrderSl() {
     baseAssetPrecision,
     quotePrecision,
     baseAsset,
+    quoteAsset,
   } = setLivePrice(exchangeInfo, selectedSymbol);
 
   const sl = parseFloat(formik.values.sl);
   const streamPrice = parseFloat(livePrice.toString());
+
+  useEffect(() => {
+    if (formik.values.sl === "") {
+      setLoss(""); // Postavljanje vrednosti na prazan string
+      formik.setFieldValue("loss", "");
+    } else if (!isNaN(sl) && !isNaN(streamPrice)) {
+      const lossValue = Math.abs(((sl - streamPrice) / streamPrice) * 100);
+      setLoss(lossValue.toFixed(2));
+      formik.setFieldValue("loss", lossValue.toFixed(2));
+    }
+  }, [formik.values.sl, livePrice]);
 
   useEffect(() => {
     if (sl < streamPrice) {
@@ -136,16 +145,22 @@ export default function FormOrderSl() {
   }, [streamPrice, tp, sl, rr]);
 
   useEffect(() => {
-    const riskDollars = (riskPrecent * walletBalance) / 100;
-    const quantity = riskDollars / Math.abs(streamPrice - sl);
-    const size = quantity * streamPrice;
-    setriskDollars(riskDollars);
-    setSize(size);
-    // proveravamo da li je quantity NaN
-    if (isNaN(quantity)) {
-      formik.setFieldValue("quantity", "0.00");
+    if (formik.values.sl !== "") {
+      const riskDollars = (riskPrecent * walletBalance) / 100;
+      const quantity = riskDollars / Math.abs(streamPrice - sl);
+      const size = quantity * streamPrice;
+      setriskDollars(riskDollars);
+      setSize(size);
+      // proveravamo da li je quantity NaN
+      if (isNaN(quantity)) {
+        formik.setFieldValue("quantity", "0.00");
+      } else {
+        formik.setFieldValue("quantity", quantity.toFixed(baseAssetPrecision));
+      }
     } else {
-      formik.setFieldValue("quantity", quantity.toFixed(baseAssetPrecision));
+      setriskDollars(0);
+      setSize(0);
+      formik.setFieldValue("quantity", "0.00");
     }
   }, [riskPrecent, walletBalance, streamPrice, sl, size]);
 
@@ -210,7 +225,7 @@ export default function FormOrderSl() {
                 type="number"
                 label="Risk On Trade"
                 sufix="%"
-                className="w-[60%]"
+                className="w-[67%]"
                 defaultValue={1}
                 name="riskPrecent"
                 value={formik.values.riskPrecent}
@@ -225,7 +240,7 @@ export default function FormOrderSl() {
               <TextInputField
                 type="number"
                 label="R/R"
-                className="w-[35%]"
+                className="w-[30%]"
                 prefix="1:"
                 componentName="rr"
                 name="rr"
@@ -239,18 +254,29 @@ export default function FormOrderSl() {
                 onBlur={formik.handleBlur}
               />
             </div>
-            <TextInputField
-              type="number"
-              label="Stop Loss"
-              // sufix="USDT"
-              className="w-full"
-              name="sl"
-              value={formik.values.sl}
-              onChange={(event) => {
-                funCalcCharacter(event, livePrice, formik);
-              }}
-              onBlur={formik.handleBlur}
-            />
+            <div className="flex flex-row justify-between">
+              <TextInputField
+                type="number"
+                label="Stop Loss"
+                // sufix="USDT"
+                className="w-[67%]"
+                name="sl"
+                value={formik.values.sl}
+                onChange={(event) => {
+                  funCalcCharacter(event, livePrice, formik);
+                }}
+                onBlur={formik.handleBlur}
+              />
+              <TextInputField
+                type="number"
+                sufix="%"
+                className="w-[30%]"
+                name="loss"
+                value={formik.values.loss}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+            </div>
             <TradingInfo
               className="mt-4 text-xs"
               quantity={formik.values.quantity}

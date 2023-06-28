@@ -42,7 +42,7 @@ export default function TextInputField({
 
   return (
     <div
-      className={`my-2 box-border flex h-10 flex-row items-center justify-between rounded bg-gray-middle px-2 text-sm hover:border-[1px] hover:border-yellow hover:px-[0.45rem] ${className}`}
+      className={`my-1 box-border flex h-10 flex-row items-center justify-between rounded bg-gray-middle px-2 text-sm hover:border-[1px] hover:border-yellow hover:px-[0.45rem] ${className}`}
     >
       <div
         className={`flex-grow select-none whitespace-nowrap text-gray-light`}

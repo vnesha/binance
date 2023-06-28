@@ -21,6 +21,7 @@ export function setLivePrice(exchangeInfo: any, selectedSymbol: string | null) {
     ? tickSize.toString().split(".")[1]?.length || 0
     : 0;
   const baseAsset = symbolInfo?.baseAsset;
+  const quoteAsset = symbolInfo?.quoteAsset;
   const [livePrice, setLivePrice] = useState<number | null>(null);
   const allLivePrices = useAllLivePrices(selectedSymbol || "");
   const priceDirection = selectedSymbol
@@ -59,5 +60,6 @@ export function setLivePrice(exchangeInfo: any, selectedSymbol: string | null) {
     baseAssetPrecision,
     quotePrecision,
     baseAsset,
+    quoteAsset,
   };
 }
