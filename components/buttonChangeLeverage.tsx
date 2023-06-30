@@ -1,4 +1,4 @@
-import { useChangeLeverage } from "@/app/hooks/useChangeLeverage";
+import { useChangeLeverage } from "@/hooks/useChangeLeverage";
 import { DialogTrigger } from "@/components/ui/dialog";
 
 type ButtonProps = {

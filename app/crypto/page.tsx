@@ -1,14 +1,14 @@
 "use client";
-import { usePositionData } from "../hooks/useAllPositionData";
-import { CombinedDataType } from "../types/types";
+import { usePositionData } from "../../hooks/useAllPositionData";
+import { CombinedDataType } from "../../types/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PositionHeader } from "@/components/headerPosition";
 import { OrderForm } from "@/components/formOrderRegular";
 import { ToastContainer } from "react-toastify";
-import { useOpenOrdersData } from "../hooks/useOpenOrdersData";
+import { useOpenOrdersData } from "../../hooks/useOpenOrdersData";
 import PositionDataRow from "@/components/rowPositions";
 import OrderDataRow from "@/components/rowOpenOrders";
-import { Order } from "../types/types";
+import { Order } from "../../types/types";
 import { OpenOrdersHeaader } from "@/components/headerOpenOrders";
 import AdvancedChart from "@/components/chartAdvanced";
 import "react-toastify/dist/ReactToastify.css";

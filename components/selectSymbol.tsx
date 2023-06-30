@@ -1,4 +1,4 @@
-import { usePositionData } from "@/app/hooks/useAllPositionData";
+import { usePositionData } from "@/hooks/useAllPositionData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,

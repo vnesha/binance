@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { usePositionData } from "@/app/hooks/useAllPositionData";
-import { CombinedDataType } from "@/app/types/types";
+import { usePositionData } from "@/hooks/useAllPositionData";
+import { CombinedDataType } from "@/types/types";
 import { formatLocale } from "@/util/formatingNumber";
 
 export default function AccountInfo({ className }: { className?: string }) {

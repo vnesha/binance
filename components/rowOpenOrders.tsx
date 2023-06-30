@@ -1,5 +1,5 @@
 import { formatDateAndTime } from "@/util/formatDateAndTime";
-import { OrderDataRowProps } from "@/app/types/types";
+import { OrderDataRowProps } from "@/types/types";
 import { formatOrderType, formatStopPrice } from "@/util/formatOrderType";
 import { formatNumber, addTextClassSide } from "@/util/formatingNumber";
 import CancelButton from "./buttonCancelOrder";

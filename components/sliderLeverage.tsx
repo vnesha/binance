@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import useTooltip from "@/app/hooks/useTootltip"; // pretpostavimo da je useTooltip u istom direktorijumu
+import useTooltip from "@/hooks/useTootltip"; // pretpostavimo da je useTooltip u istom direktorijumu
 import ChangeLeverageButton from "./buttonChangeLeverage";
-import { rangeSliderProps } from "@/app/types/types";
+import { rangeSliderProps } from "@/types/types";
 
 const RangeSlider: React.FC<rangeSliderProps> = ({
   initialMargin,

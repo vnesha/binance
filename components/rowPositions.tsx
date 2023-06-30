@@ -1,5 +1,5 @@
 import { formatNumber, addTextClass, addBgClass } from "@/util/formatingNumber";
-import { CombinedDataType } from "@/app/types/types";
+import { CombinedDataType } from "@/types/types";
 import ButtonClosePosition from "./buttonClosePosition";
 
 const PositionDataRow = ({

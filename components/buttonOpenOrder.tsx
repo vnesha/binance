@@ -1,4 +1,4 @@
-import { useOpenOrder } from "@/app/hooks/useOpenPosition";
+import { useOpenOrder } from "@/hooks/useOpenPosition";
 import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 

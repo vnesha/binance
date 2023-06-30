@@ -1,7 +1,7 @@
 "use client";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
-import { usePositionData } from "@/app/hooks/useAllPositionData";
+import { usePositionData } from "@/hooks/useAllPositionData";
 import { DialogLeverage } from "./dialogLeverage";
 import { SelectSymbol } from "./selectSymbol";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +11,7 @@ import { DisplayStreamPrice } from "./displayStreamPrice";
 import { selectSymbol } from "@/util/selectSymbol";
 import { setLivePrice } from "@/util//setLivePrice";
 import TradingInfo from "./infoTrading";
-import { useOpenOrder } from "@/app/hooks/useOpenPosition";
+import { useOpenOrder } from "@/hooks/useOpenPosition";
 import { funCalcCharacter } from "@/util/funCalcCharacter";
 
 export default function FormOrderSl() {

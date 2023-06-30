@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { Button } from "@/components/buttonOpenOrder";
-import { useOpenOrder } from "@/app/hooks/useOpenPosition";
-import { usePositionData } from "@/app/hooks/useAllPositionData";
+import { useOpenOrder } from "@/hooks/useOpenPosition";
+import { usePositionData } from "@/hooks/useAllPositionData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as Yup from "yup";
 

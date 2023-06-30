@@ -1,5 +1,5 @@
-import { useClosePosition } from "@/app/hooks/useCloseMarkPosition";
-import { useCancelAllOpenOrders } from "@/app/hooks/useCancelAllOpenOrders";
+import { useClosePosition } from "@/hooks/useCloseMarkPosition";
+import { useCancelAllOpenOrders } from "@/hooks/useCancelAllOpenOrders";
 
 type buttonClosePositionProps = {
   symbol: string;

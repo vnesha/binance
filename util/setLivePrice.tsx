@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import useAllLivePrices from "@/app/hooks/useAllLivePrice";
+import useAllLivePrices from "@/hooks/useAllLivePrice";
 import { setFormatedPrice } from "../util/setFormatedPrice";
 
 export function setLivePrice(exchangeInfo: any, selectedSymbol: string | null) {

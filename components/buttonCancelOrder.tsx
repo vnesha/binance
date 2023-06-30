@@ -1,4 +1,4 @@
-import { useCancelOrder } from "@/app/hooks/useCancelOrder";
+import { useCancelOrder } from "@/hooks/useCancelOrder";
 
 type CancelButtonProps = {
   symbol: string;
