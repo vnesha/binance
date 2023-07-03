@@ -20,9 +20,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { searchParams } = new URL(request.nextUrl);
-  const symbol = searchParams.get('symbol');
-  const quantity = searchParams.get('quantity');
+  // Pretpostavimo da je telo zahteva validan JSON
+  const body = await request.json();
+  const { symbol, quantity } = body;
 
   if (!symbol || !quantity) {
     return NextResponse.json({ error: "Invalid parameters" });
