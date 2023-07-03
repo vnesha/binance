@@ -219,7 +219,7 @@ export default function FormOrderSl() {
           isPriceValid={isPriceValid}
           livePriceFormatted={livePriceFormatted}
         ></DisplayStreamPrice>
-
+        <div>{livePrice}</div>
         <Tabs defaultValue="Market">
           <TabsList className="pr-[100px]">
             <TabsTrigger value="Limit" onClick={() => handleTabChange("Limit")}>
