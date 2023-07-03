@@ -54,7 +54,9 @@ export default function FormOrderSl() {
   const markPrice = livePriceData ? livePriceData.markPrice : "Undefined";
 
   useEffect(() => {
-    Cookies.set("selectedSymbol", selectedSymbol);
+    if (selectedSymbol !== null) {
+      Cookies.set("selectedSymbol", selectedSymbol);
+    }
   }, [selectedSymbol]);
 
   const formik = useFormik({
