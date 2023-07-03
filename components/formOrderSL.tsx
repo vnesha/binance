@@ -5,18 +5,19 @@ import { usePositionData } from "@/hooks/useAllPositionData";
 import { DialogLeverage } from "./dialogLeverage";
 import { SelectSymbol } from "./selectSymbol";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AccountInfo from "@/components/infoAccount";
-import TextInputField from "./textInputField";
 import { DisplayStreamPrice } from "./displayStreamPrice";
 import { selectSymbol } from "@/util/selectSymbol";
 import { setLivePrice } from "@/util//setLivePrice";
-import TradingInfo from "./infoTrading";
 import { useOpenOrder } from "@/hooks/useOpenPosition";
 import { funCalcCharacter } from "@/util/funCalcCharacter";
+import useAllLivePrices from "@/hooks/useAllLivePrice";
+import AccountInfo from "@/components/infoAccount";
+import TextInputField from "./textInputField";
+import TradingInfo from "./infoTrading";
+import { calcCostMarkPosition } from "@/util/calcCostMarkPosition";
 
 export default function FormOrderSl() {
   const {
-    combinedData,
     positions,
     accountInfo,
     perpetualSymbols,
@@ -47,6 +48,11 @@ export default function FormOrderSl() {
   const [tp, setTp] = useState<number>(0);
   const [size, setSize] = useState<number>(0.0);
   const [loss, setLoss] = useState<string>("0.00");
+  const livePrices = useAllLivePrices(selectedSymbol || "BTCUSDT");
+  const livePriceData = livePrices[selectedSymbol || "BTCUSDT"];
+  const bestBid = livePriceData ? livePriceData.bestBid : "Undefined";
+  const bestAsk = livePriceData ? livePriceData.bestAsk : "Undefined";
+  const markPrice = livePriceData ? livePriceData.markPrice : "Undefined";
 
   const formik = useFormik({
     initialValues: {
@@ -115,6 +121,14 @@ export default function FormOrderSl() {
   const sl = parseFloat(formik.values.sl);
   const streamPrice = parseFloat(livePrice.toString());
 
+  const { longCost, shortCost } = calcCostMarkPosition({
+    numberOfContracts: formik.values.quantity,
+    leverage: selectedPosition,
+    markPrice: parseFloat(markPrice),
+    bidPrice: [parseFloat(bestBid)],
+    askPrice: [parseFloat(bestAsk)],
+  });
+
   useEffect(() => {
     if (formik.values.sl === "") {
       setLoss(""); // Postavljanje vrednosti na prazan string
@@ -130,14 +144,14 @@ export default function FormOrderSl() {
     if (sl < streamPrice) {
       setSide("BUY");
       formik.setFieldValue("side", "BUY");
-      console.log(side);
+      // console.log(side);
       const tp = streamPrice + Math.abs(streamPrice - sl) * rr;
       setTp(tp);
       formik.setFieldValue("tp", tp);
     } else if (sl > streamPrice) {
       setSide("SELL");
       formik.setFieldValue("side", "SELL");
-      console.log(side);
+      // console.log(side);
       const tp = streamPrice - Math.abs(streamPrice - sl) * rr;
       setTp(tp);
       formik.setFieldValue("tp", tp);

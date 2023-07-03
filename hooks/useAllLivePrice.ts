@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { BinanceResponse } from "../types/types";
+import { BinanceResponse, BinanceBookTickerResponse } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
+
 
 const fetchPrice = async (symbol: string) => {
   try {
@@ -23,11 +24,11 @@ const fetchPrice = async (symbol: string) => {
 
 const useAllLivePrices = (
   symbol: string
-): { [symbol: string]: { price: string; direction: "up" | "down" | "equally" } } => {
+): { [symbol: string]: { price: string; direction: "up" | "down" | "equally"; bestBid: string; bestAsk: string; markPrice: string; } } => {
   const [allLivePrices, setAllLivePrices] = useState<{
-    [symbol: string]: { price: string; direction: "up" | "down" | "equally" };
-  }>({ [symbol]: { price: "Undefined", direction: "up" } });
-
+    [symbol: string]: { price: string; direction: "up" | "down" | "equally"; bestBid: string; bestAsk: string; markPrice: string };
+  }>({ [symbol]: { price: "Undefined", direction: "up", bestBid: "Undefined", bestAsk: "Undefined", markPrice: "Undefined" } });
+  
   const { data, isError, error } = useQuery(
     [symbol],
     () => fetchPrice(symbol),
@@ -35,7 +36,7 @@ const useAllLivePrices = (
       onSuccess: (data) => {
         setAllLivePrices((prevPrices) => ({
           ...prevPrices,
-          [symbol.toUpperCase()]: { price: data, direction: "up" },
+          [symbol.toUpperCase()]: { ...prevPrices[symbol.toUpperCase()], price: data },
         }));
       },
     }
@@ -54,7 +55,15 @@ const useAllLivePrices = (
       const ws = new WebSocket(
         `wss://fstream.binance.com/ws/${symbol.toLowerCase()}@aggTrade`
       );
-    
+
+      const wsBookTicker = new WebSocket(
+        `wss://fstream.binance.com/ws/${symbol.toLowerCase()}@bookTicker`
+      );
+
+      const wsMarkPrice = new WebSocket(
+        `wss://fstream.binance.com/ws/${symbol.toLowerCase()}@markPrice@1s`
+      );
+        
       ws.onmessage = (event) => {
         if (cleanupCalled) return;
     
@@ -70,13 +79,10 @@ const useAllLivePrices = (
             if (previousPrice !== null) {
               if (currentPrice > previousPrice) {
                 direction = "up";
-                // console.log(`${currentPrice} is greater than ${previousPrice}`);
               } else if (currentPrice < previousPrice) {
                 direction = "down";
-                // console.log(`${currentPrice} is less than ${previousPrice}`);
               } else {
                 direction = "equally";
-                // console.log(`${currentPrice} is equal to ${previousPrice}`);
               }
             }
     
@@ -84,7 +90,41 @@ const useAllLivePrices = (
     
             setAllLivePrices((prevPrices) => ({
               ...prevPrices,
-              [symbol.toUpperCase()]: { price: message.p, direction },
+              [symbol.toUpperCase()]: { ...prevPrices[symbol.toUpperCase()], price: message.p, direction },
+            }));
+          }
+        }
+      };
+
+      wsBookTicker.onmessage = (event) =>  {
+        if (cleanupCalled) return;
+
+        const message = JSON.parse(event.data) as BinanceBookTickerResponse;
+        if (
+          message.s &&
+          message.s.toUpperCase() === symbol.toUpperCase()
+        ) {
+          if (!cleanupCalled) {
+              setAllLivePrices((prevPrices) => ({
+              ...prevPrices,
+              [symbol.toUpperCase()]: { ...prevPrices[symbol.toUpperCase()], bestBid: message.b, bestAsk: message.a },
+            }));
+          }
+        }
+      };
+
+      wsMarkPrice.onmessage = (event) => {
+        if (cleanupCalled) return;
+      
+        const message = JSON.parse(event.data);
+        if (
+          message.s &&
+          message.s.toUpperCase() === symbol.toUpperCase()
+        ) {
+          if (!cleanupCalled) {
+            setAllLivePrices((prevPrices) => ({
+              ...prevPrices,
+              [symbol.toUpperCase()]: { ...prevPrices[symbol.toUpperCase()], markPrice: message.p },
             }));
           }
         }
@@ -99,19 +139,45 @@ const useAllLivePrices = (
           }
         }
       };
+
+      wsBookTicker.onclose = (event) => {
+        console.log("WebSocket bookTicker connection closed:", event);
+        if (!cleanupCalled) {
+          // Ignore normal closures and endpoint gone
+          if (event.code !== 1000 && event.code !== 1001) {
+            setTimeout(connectWebSocket, 5000); // Reconnect after 5 seconds
+          }
+        }
+      };
+
+      wsMarkPrice.onclose = (event) => {
+        console.log("WebSocket markPrice connection closed:", event);
+        if (!cleanupCalled) {
+          // Ignore normal closures and endpoint gone
+          if (event.code !== 1000 && event.code !== 1001) {
+            setTimeout(connectWebSocket, 5000); // Reconnect after 5 seconds
+          }
+        }
+      };
+
+      return () => {
+        cleanupCalled = true;
     
-      return ws;
+        if (ws && ws.readyState && ws.readyState <= WebSocket.OPEN) {
+          ws.close();
+        }
+
+        if (wsBookTicker && wsBookTicker.readyState && wsBookTicker.readyState <= WebSocket.OPEN) {
+          wsBookTicker.close();
+        }
+
+        if (wsMarkPrice && wsMarkPrice.readyState && wsMarkPrice.readyState <= WebSocket.OPEN) {
+          wsMarkPrice.close();
+        }
+      };
     };
     
-    const ws = connectWebSocket();
-    
-    return () => {
-      cleanupCalled = true;
-    
-      if (ws && ws.readyState && ws.readyState <= WebSocket.OPEN) {
-        ws.close();
-      }
-    };
+    connectWebSocket();
     
   }, [symbol, isError]);
 

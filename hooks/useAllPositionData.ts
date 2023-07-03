@@ -226,7 +226,6 @@ export const usePositionData = () => {
 
       const accountInfo = account.data;
       setAccountInfo(accountInfo);
-      console.log(accountInfo);
       
       const perpetualSymbolsArray = exchangeInfo.data?.symbols
         .filter(

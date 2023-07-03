@@ -3,6 +3,15 @@ export type BinanceResponse = {
     p: string;
   };
 
+export interface BinanceBookTickerResponse {
+  u: number; // order book updateId
+  s: string; // symbol
+  b: string; // best bid price
+  B: string; // best bid qty
+  a: string; // best ask price
+  A: string; // best ask qty
+  }
+
 export type SymbolInfo = {
     symbol: string;
     status: string;
