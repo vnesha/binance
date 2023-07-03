@@ -13,9 +13,9 @@ export async function GET(request: NextRequest) {
   try {
     const response = await openOrder({ symbol, quantity: Number(quantity) });
     return NextResponse.json(response);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return NextResponse.json({ error: "Error processing order" });
+    return NextResponse.json({ error: "Error processing order", fullError: error });
   }
 }
 
@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
   try {
     const response = await openOrder({ symbol, quantity: Number(quantity) });
     return NextResponse.json(response);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return NextResponse.json({ error: "Error processing order" });
+    return NextResponse.json({ error: "Error processing order", fullError: error });
   }
 }
