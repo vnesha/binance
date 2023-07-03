@@ -9,7 +9,7 @@ export const openOrder = async ({
   symbol: string;
   quantity: number;
 }) => {
-  const BASE_URL = `http://localhost:8080/binance/fapi/v1/order`;
+  const BASE_URL = `${API_URL}/fapi/v1/order`;
 
   const params = {
     symbol: symbol,
