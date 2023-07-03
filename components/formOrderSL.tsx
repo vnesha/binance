@@ -15,6 +15,7 @@ import AccountInfo from "@/components/infoAccount";
 import TextInputField from "./textInputField";
 import TradingInfo from "./infoTrading";
 import { calcCostMarkPosition } from "@/util/calcCostMarkPosition";
+import Cookies from "js-cookie";
 
 export default function FormOrderSl() {
   const {
@@ -36,10 +37,8 @@ export default function FormOrderSl() {
     }
   });
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("selectedSymbol") || null;
-    }
-    return null;
+    const storedSymbol = Cookies.get("selectedSymbol");
+    return storedSymbol || null;
   });
   const [side, setSide] = useState<"BUY" | "SELL">("BUY");
   const [quantity, setQuantity] = useState<number>(0.0);
@@ -53,6 +52,10 @@ export default function FormOrderSl() {
   const bestBid = livePriceData ? livePriceData.bestBid : "Undefined";
   const bestAsk = livePriceData ? livePriceData.bestAsk : "Undefined";
   const markPrice = livePriceData ? livePriceData.markPrice : "Undefined";
+
+  useEffect(() => {
+    Cookies.set("selectedSymbol", selectedSymbol);
+  }, [selectedSymbol]);
 
   const formik = useFormik({
     initialValues: {
@@ -219,7 +222,6 @@ export default function FormOrderSl() {
           isPriceValid={isPriceValid}
           livePriceFormatted={livePriceFormatted}
         ></DisplayStreamPrice>
-        <div>{livePrice}</div>
         <Tabs defaultValue="Market">
           <TabsList className="pr-[100px]">
             <TabsTrigger value="Limit" onClick={() => handleTabChange("Limit")}>

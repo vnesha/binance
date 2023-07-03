@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from "react";
+import Cookies from "js-cookie";
 
 export function selectSymbol(
   perpetualSymbols: string[],
@@ -10,14 +11,13 @@ export function selectSymbol(
   leverageBrackets: any,
   setSelectedLeverage: any
 ) {
-  // useEffect(() => {
-  //   if (perpetualSymbols.length > 0 && selectedSymbol === null) {
-  //     let initialSymbol =
-  //       localStorage.getItem("selectedSymbol") || perpetualSymbols[0];
-  //     setSelectedSymbol(initialSymbol);
-  //     formik.setFieldValue("symbol", initialSymbol);
-  //   }
-  // }, [perpetualSymbols, selectedSymbol, formik]);
+  useEffect(() => {
+    if (perpetualSymbols.length > 0 && selectedSymbol === null) {
+      let initialSymbol = Cookies.get("selectedSymbol") || perpetualSymbols[0];
+      setSelectedSymbol(initialSymbol);
+      formik.setFieldValue("symbol", initialSymbol);
+    }
+  }, [perpetualSymbols, selectedSymbol, formik]);
 
   useEffect(() => {
     if (selectedSymbol && positions && positions.length > 0) {
@@ -40,7 +40,7 @@ export function selectSymbol(
 
   const handleSelect = useCallback(
     (symbol: string) => {
-      localStorage.setItem("selectedSymbol", symbol);
+      Cookies.set("selectedSymbol", symbol);
       setSelectedSymbol(symbol);
       formik.setFieldValue("symbol", symbol);
       formik.setFieldValue("sl", "");
@@ -63,6 +63,7 @@ export function selectSymbol(
     },
     [positions, leverageBrackets, formik]
   );
+
   return handleSelect;
 }
 

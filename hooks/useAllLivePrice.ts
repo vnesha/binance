@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { BinanceResponse, BinanceBookTickerResponse } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
-import useWebSocket, { ReadyState } from "react-use-websocket";
+
 
 const fetchPrice = async (symbol: string) => {
   try {
@@ -25,19 +25,19 @@ const fetchPrice = async (symbol: string) => {
 const useAllLivePrices = (
   symbol: string
 ): { [symbol: string]: { price: string; direction: "up" | "down" | "equally"; bestBid: string; bestAsk: string; markPrice: string; } } => {
-  const allLivePricesRef = useRef<{
+  const [allLivePrices, setAllLivePrices] = useState<{
     [symbol: string]: { price: string; direction: "up" | "down" | "equally"; bestBid: string; bestAsk: string; markPrice: string };
   }>({ [symbol]: { price: "Undefined", direction: "up", bestBid: "Undefined", bestAsk: "Undefined", markPrice: "Undefined" } });
-
+  
   const { data, isError, error } = useQuery(
     [symbol],
     () => fetchPrice(symbol),
     {
       onSuccess: (data) => {
-        allLivePricesRef.current = {
-          ...allLivePricesRef.current,
-          [symbol.toUpperCase()]: { ...allLivePricesRef.current[symbol.toUpperCase()], price: data },
-        };
+        setAllLivePrices((prevPrices) => ({
+          ...prevPrices,
+          [symbol.toUpperCase()]: { ...prevPrices[symbol.toUpperCase()], price: data },
+        }));
       },
     }
   );
@@ -88,10 +88,10 @@ const useAllLivePrices = (
     
             previousPrice = currentPrice;
     
-            allLivePricesRef.current = {
-              ...allLivePricesRef.current,
-              [symbol.toUpperCase()]: { ...allLivePricesRef.current[symbol.toUpperCase()], price: message.p, direction },
-            };
+            setAllLivePrices((prevPrices) => ({
+              ...prevPrices,
+              [symbol.toUpperCase()]: { ...prevPrices[symbol.toUpperCase()], price: message.p, direction },
+            }));
           }
         }
       };
@@ -105,10 +105,10 @@ const useAllLivePrices = (
           message.s.toUpperCase() === symbol.toUpperCase()
         ) {
           if (!cleanupCalled) {
-            allLivePricesRef.current = {
-              ...allLivePricesRef.current,
-              [symbol.toUpperCase()]: { ...allLivePricesRef.current[symbol.toUpperCase()], bestBid: message.b, bestAsk: message.a },
-            };
+              setAllLivePrices((prevPrices) => ({
+              ...prevPrices,
+              [symbol.toUpperCase()]: { ...prevPrices[symbol.toUpperCase()], bestBid: message.b, bestAsk: message.a },
+            }));
           }
         }
       };
@@ -122,10 +122,10 @@ const useAllLivePrices = (
           message.s.toUpperCase() === symbol.toUpperCase()
         ) {
           if (!cleanupCalled) {
-            allLivePricesRef.current = {
-              ...allLivePricesRef.current,
-              [symbol.toUpperCase()]: { ...allLivePricesRef.current[symbol.toUpperCase()], markPrice: message.p },
-            };
+            setAllLivePrices((prevPrices) => ({
+              ...prevPrices,
+              [symbol.toUpperCase()]: { ...prevPrices[symbol.toUpperCase()], markPrice: message.p },
+            }));
           }
         }
       };
@@ -159,17 +159,29 @@ const useAllLivePrices = (
           }
         }
       };
+
+      return () => {
+        cleanupCalled = true;
+    
+        if (ws && ws.readyState && ws.readyState <= WebSocket.OPEN) {
+          ws.close();
+        }
+
+        if (wsBookTicker && wsBookTicker.readyState && wsBookTicker.readyState <= WebSocket.OPEN) {
+          wsBookTicker.close();
+        }
+
+        if (wsMarkPrice && wsMarkPrice.readyState && wsMarkPrice.readyState <= WebSocket.OPEN) {
+          wsMarkPrice.close();
+        }
+      };
     };
     
     connectWebSocket();
     
-    return () => {
-      cleanupCalled = true;
-    };
-    
   }, [symbol, isError]);
 
-  return allLivePricesRef.current;
+  return allLivePrices;
 };
 
 export default useAllLivePrices;
