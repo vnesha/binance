@@ -25,12 +25,27 @@ export const openOrder = async ({
 }) => {
   const BASE_URL = `https://testnet.binancefuture.com/fapi/v1/order`;
 
+  const settings = await getSettings();
+  const riskPercent = settings[0].riskPercent;
+  const riskRewardRatio = settings[0].riskRewardRatio;
+  const openPositionLimit = settings[0].openPositionLimit;
+
   const openOrders = await getOpenOrders();
   const existingOrder = openOrders.find(
     (order: any) =>
       order.symbol === symbol && parseFloat(order.positionAmt) !== 0.0
   );
-
+  const openPositionOrders = openOrders.filter(
+    (order: any) => parseFloat(order.positionAmt) !== 0.0
+  );
+  if (openPositionOrders.length >= openPositionLimit) {
+    console.log(`Cannot open more positions. The limit is ${openPositionLimit}.`);
+    return { message: `Cannot open more positions. The limit is ${openPositionLimit}.` };
+  }
+    if (existingOrder) {
+    console.log(`Order already exists for ${symbol} symbol`);
+    return { message: `Order already exists for ${symbol} symbol` };
+  }
   const accountInfo = await getAccountInfo();
   const walletBalance = accountInfo?.totalWalletBalance;
 
@@ -45,11 +60,7 @@ export const openOrder = async ({
   const baseAssetPrecision =
     stepSize && stepSize.includes(".") ? stepSize.split(".")[1].length : 0;
 
-  const settings = await getSettings();
-  const riskPercent = settings[0].riskPercent;
-  const riskRewardRatio = settings[0].riskRewardRatio;
-
-  const riskDollars = (riskPercent * walletBalance) / 100;
+    const riskDollars = (riskPercent * walletBalance) / 100;
   const quantityRaw = riskDollars / Math.abs(markPrice - stopLoss);
   const quantity = quantityRaw.toFixed(baseAssetPrecision);
 
@@ -72,12 +83,7 @@ export const openOrder = async ({
 
   const config = postData(params);
 
-  if (existingOrder) {
-    console.log("Order already exists for this symbol");
-    return { message: "Order already exists for this symbol" };
-  }
-
-  try {
+   try {
     const response: AxiosResponse<OrderResponse> = await axios.post(
       BASE_URL,
       null,

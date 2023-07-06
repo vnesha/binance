@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 export default function TradeSettings() {
   const [riskPercent, setRiskPercent] = useState("0");
   const [riskRewardRatio, setRiskRewardRatio] = useState("0");
+  const [openPositionLimit, setOpenPositionLimit] = useState("0");
 
   useEffect(() => {
     async function fetchSettings() {
@@ -16,6 +17,7 @@ export default function TradeSettings() {
         console.log("Received settings: ", settings); // Log the received settings
         setRiskPercent(String(settings.riskPercent));
         setRiskRewardRatio(String(settings.riskRewardRatio));
+        setOpenPositionLimit(String(settings.openPositionLimit));
       } else {
         console.error("Error fetching settings");
       }
@@ -33,6 +35,7 @@ export default function TradeSettings() {
       body: JSON.stringify({
         riskPercent,
         riskRewardRatio,
+        openPositionLimit,
       }),
     });
 
@@ -86,6 +89,21 @@ export default function TradeSettings() {
             }
           }}
         />
+
+        <TextInputField
+          type="number"
+          label="Open Position Limit"
+          className="w-[100%]"
+          name="openPositionLimit"
+          value={openPositionLimit}
+          onChange={(event) => {
+            const value = event.target.value;
+            if (value.length <= 3) {
+              setOpenPositionLimit(value);
+            }
+          }}
+        />
+        <div className="flex flex-col"></div>
       </div>
       <button
         className="mt-6 w-full cursor-pointer rounded bg-yellow px-4 py-[10px] text-sm font-medium text-[#181a20] hover:bg-yellow/90"
