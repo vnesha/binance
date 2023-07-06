@@ -3,13 +3,12 @@ import { usePositionData } from "../../hooks/useAllPositionData";
 import { CombinedDataType } from "../../types/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PositionHeader } from "@/components/headerPosition";
-import { OrderForm } from "@/components/formOrderRegular";
 import { ToastContainer } from "react-toastify";
 import { useOpenOrdersData } from "../../hooks/useOpenOrdersData";
-import PositionDataRow from "@/components/rowPositions";
-import OrderDataRow from "@/components/rowOpenOrders";
 import { Order } from "../../types/types";
 import { OpenOrdersHeaader } from "@/components/headerOpenOrders";
+import PositionDataRow from "@/components/rowPositions";
+import OrderDataRow from "@/components/rowOpenOrders";
 import AdvancedChart from "@/components/chartAdvanced";
 import "react-toastify/dist/ReactToastify.css";
 import FormOrderSl from "@/components/formOrderSL";
@@ -17,13 +16,7 @@ import FormOrderSl from "@/components/formOrderSL";
 // tailwindcss: text-green text-red bg-green bg-red
 
 function CryptoPage() {
-  const {
-    combinedData,
-    isLoading,
-    perpetualSymbols,
-    baseAssetAll,
-    exchangeInfo,
-  } = usePositionData();
+  const { combinedData, isLoading, exchangeInfo } = usePositionData();
   const filteredPositions = combinedData?.filter(
     (position: CombinedDataType) => position.positionAmt !== 0
   );
@@ -35,10 +28,6 @@ function CryptoPage() {
         <div className="w-full">{/* <AdvancedChart /> */}</div>
         <div className="flex bg-black">
           <FormOrderSl />
-          {/* <OrderForm
-            perpetualSymbols={perpetualSymbols}
-            baseAssetAll={baseAssetAll}
-          /> */}
         </div>
       </div>
       <div className="pl-4 pr-4">

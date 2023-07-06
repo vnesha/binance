@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient, ObjectId } from "mongodb";
 
-export async function POST(request: NextRequest) {
-  if (request.method === "POST") {
-    const { riskPercent, riskRewardRatio } = await request.json();
-
+export async function GET(request: NextRequest) {
+  if (request.method === "GET") {
     try {
       // Connect to the database
       const MONGODB_URI = process.env.MONGODB_URI;
@@ -18,23 +16,18 @@ export async function POST(request: NextRequest) {
       const database = client.db("BinanceDB");
       const collection = database.collection("Settings");
 
-      // Update the existing object in the database
-      await collection.updateOne(
-        { _id: ObjectId.createFromHexString("64a5bd6b70b55b8804ca7c93") },
-        { $set: { riskPercent, riskRewardRatio } }
-      );
+      // Fetch the settings from the database
+      const settings = await collection.findOne({ _id: ObjectId.createFromHexString("64a5bd6b70b55b8804ca7c93") });
 
       // Close the database connection
       await client.close();
 
-      return NextResponse.json(
-        { message: "Settings updated successfully" },
-        { status: 200 }
-      );
+      // Return the settings
+      return NextResponse.json(settings);
     } catch (error) {
       console.error(error);
       return NextResponse.json(
-        { error: "Error updating settings", fullError: error },
+        { error: "Error fetching settings", fullError: error },
         { status: 500 }
       );
     }

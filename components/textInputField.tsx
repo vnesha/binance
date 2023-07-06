@@ -36,7 +36,7 @@ export default function TextInputField({
   };
   const parsedInputValue = isNaN(Number(props.value)) ? 0 : Number(props.value);
   const inputClass =
-    componentName === "rr" && parsedInputValue > 9 ? "w-[20px]" : "w-[13px]";
+    componentName === "rr" && parsedInputValue > 9 ? "w-[23px]" : "w-[13px]";
 
   const inputContainerClass = componentName ? "" : "w-full";
 

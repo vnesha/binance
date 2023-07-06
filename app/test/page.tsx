@@ -1,9 +1,28 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import TextInputField from "@/components/textInputField";
+import "react-toastify/dist/ReactToastify.css";
 
-export default function Home() {
-  const [riskPercent, setRiskPercent] = useState(0);
-  const [riskRewardRatio, setRiskRewardRatio] = useState(0);
+export default function TradeSettings() {
+  const [riskPercent, setRiskPercent] = useState("0");
+  const [riskRewardRatio, setRiskRewardRatio] = useState("0");
+
+  useEffect(() => {
+    async function fetchSettings() {
+      const response = await fetch("/api/get-settings");
+      if (response.ok) {
+        const settings = await response.json();
+        console.log("Received settings: ", settings); // Log the received settings
+        setRiskPercent(String(settings.riskPercent));
+        setRiskRewardRatio(String(settings.riskRewardRatio));
+      } else {
+        console.error("Error fetching settings");
+      }
+    }
+
+    fetchSettings();
+  }, []);
 
   const handleSave = async () => {
     const response = await fetch("/api/save-settings", {
@@ -19,8 +38,16 @@ export default function Home() {
 
     if (response.ok) {
       console.log("Settings saved successfully");
-      setRiskPercent(0);
-      setRiskRewardRatio(0);
+      toast.success("Settings saved successfully", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     } else {
       console.error("Error saving settings");
     }
@@ -28,25 +55,45 @@ export default function Home() {
 
   return (
     <div>
-      <label>
-        Risk Percent:
-        <input
+      <div className="flex flex-col">
+        <TextInputField
           type="number"
+          label="Risk On Trade"
+          sufix="%"
+          className="w-[100%]"
+          name="riskPrecent"
           value={riskPercent}
-          onChange={(e) => setRiskPercent(parseFloat(e.target.value))}
+          onChange={(event) => {
+            const value = event.target.value;
+            if (value.length <= 4) {
+              setRiskPercent(value);
+            }
+          }}
         />
-      </label>
-
-      <label>
-        Risk Reward Ratio:
-        <input
+        <TextInputField
           type="number"
+          label="Risk Reward Ratio"
+          className="w-[100%]"
+          prefix="1:"
+          sufix="RR"
+          componentName="rr"
+          name="riskRewardRatio"
           value={riskRewardRatio}
-          onChange={(e) => setRiskRewardRatio(parseFloat(e.target.value))}
+          onChange={(event) => {
+            const value = event.target.value;
+            if (value.length <= 2) {
+              setRiskRewardRatio(value);
+            }
+          }}
         />
-      </label>
-
-      <button onClick={handleSave}>Save</button>
+      </div>
+      <button
+        className="mt-6 w-full cursor-pointer rounded bg-yellow px-4 py-[10px] text-sm font-medium text-[#181a20] hover:bg-yellow/90"
+        onClick={handleSave}
+      >
+        Save Settings
+      </button>
+      <ToastContainer className={"text-sm"} newestOnTop />
     </div>
   );
 }

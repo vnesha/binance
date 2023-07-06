@@ -46,10 +46,10 @@ export const openOrder = async ({
     stepSize && stepSize.includes(".") ? stepSize.split(".")[1].length : 0;
 
   const settings = await getSettings();
-  const riskPrecent = settings[0].riskPrecent;
+  const riskPercent = settings[0].riskPercent;
   const riskRewardRatio = settings[0].riskRewardRatio;
 
-  const riskDollars = (riskPrecent * walletBalance) / 100;
+  const riskDollars = (riskPercent * walletBalance) / 100;
   const quantityRaw = riskDollars / Math.abs(markPrice - stopLoss);
   const quantity = quantityRaw.toFixed(baseAssetPrecision);
 
