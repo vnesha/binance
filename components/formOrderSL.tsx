@@ -10,11 +10,11 @@ import { selectSymbol } from "@/util/selectSymbol";
 import { setLivePrice } from "@/util//setLivePrice";
 import { useOpenOrder } from "@/hooks/useOpenPosition";
 import { funCalcCharacter } from "@/util/funCalcCharacter";
+import { calcCostMarkPosition } from "@/util/calcCostMarkPosition";
 import useAllLivePrices from "@/hooks/useAllLivePrice";
 import AccountInfo from "@/components/infoAccount";
 import TextInputField from "./textInputField";
 import TradingInfo from "./infoTrading";
-import { calcCostMarkPosition } from "@/util/calcCostMarkPosition";
 import Cookies from "js-cookie";
 
 export default function FormOrderSl() {

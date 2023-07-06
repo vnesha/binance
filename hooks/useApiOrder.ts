@@ -1,7 +1,12 @@
 import axios from "axios";
 import { postData } from "./usePostData";
 import { AxiosError, AxiosResponse } from "axios";
-import { getAccountInfo, getExchangeInfo, getOpenOrders } from "@/util/getInfo";
+import {
+  getAccountInfo,
+  getExchangeInfo,
+  getOpenOrders,
+  getSettings,
+} from "@/util/apiData";
 
 interface OrderResponse {
   symbol: string;
@@ -40,8 +45,10 @@ export const openOrder = async ({
   const baseAssetPrecision =
     stepSize && stepSize.includes(".") ? stepSize.split(".")[1].length : 0;
 
-  const riskPrecent = 0.1;
-  const riskRewardRatio = 2;
+  const settings = await getSettings();
+  const riskPrecent = settings[0].riskPrecent;
+  const riskRewardRatio = settings[0].riskRewardRatio;
+
   const riskDollars = (riskPrecent * walletBalance) / 100;
   const quantityRaw = riskDollars / Math.abs(markPrice - stopLoss);
   const quantity = quantityRaw.toFixed(baseAssetPrecision);
