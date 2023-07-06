@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import { Switch } from "@/components/ui/switch";
 import TextInputField from "@/components/textInputField";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -8,16 +9,17 @@ export default function TradeSettings() {
   const [riskPercent, setRiskPercent] = useState("0");
   const [riskRewardRatio, setRiskRewardRatio] = useState("0");
   const [openPositionLimit, setOpenPositionLimit] = useState("0");
+  const [isAutoTrading, setIsAutoTrading] = useState(false);
 
   useEffect(() => {
     async function fetchSettings() {
       const response = await fetch("/api/get-settings");
       if (response.ok) {
         const settings = await response.json();
-        console.log("Received settings: ", settings); // Log the received settings
         setRiskPercent(String(settings.riskPercent));
         setRiskRewardRatio(String(settings.riskRewardRatio));
         setOpenPositionLimit(String(settings.openPositionLimit));
+        setIsAutoTrading(settings.autoTrading);
       } else {
         console.error("Error fetching settings");
       }
@@ -36,6 +38,7 @@ export default function TradeSettings() {
         riskPercent,
         riskRewardRatio,
         openPositionLimit,
+        autoTrading: isAutoTrading,
       }),
     });
 
@@ -89,13 +92,22 @@ export default function TradeSettings() {
             }
           }}
         />
-
+        <div className="mb-1 mt-6 flex flex-row items-center justify-between text-sm text-gray-lighter">
+          <div>Auto Trading</div>
+          <div className="flex items-center">
+            <Switch
+              checked={isAutoTrading}
+              onCheckedChange={setIsAutoTrading}
+            />{" "}
+          </div>
+        </div>
         <TextInputField
           type="number"
           label="Open Position Limit"
           className="w-[100%]"
           name="openPositionLimit"
           value={openPositionLimit}
+          disabled={!isAutoTrading}
           onChange={(event) => {
             const value = event.target.value;
             if (value.length <= 3) {
@@ -109,7 +121,7 @@ export default function TradeSettings() {
         className="mt-6 w-full cursor-pointer rounded bg-yellow px-4 py-[10px] text-sm font-medium text-[#181a20] hover:bg-yellow/90"
         onClick={handleSave}
       >
-        Save Settings
+        Save changes
       </button>
       <ToastContainer className={"text-sm"} newestOnTop />
     </div>

@@ -3,7 +3,7 @@ import { MongoClient, ObjectId } from "mongodb";
 
 export async function POST(request: NextRequest) {
   if (request.method === "POST") {
-    const { riskPercent, riskRewardRatio, openPositionLimit } = await request.json();
+    const { riskPercent, riskRewardRatio, openPositionLimit, autoTrading } = await request.json();
 
     try {
       // Connect to the database
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       // Update the existing object in the database
       await collection.updateOne(
         { _id: ObjectId.createFromHexString("64a5bd6b70b55b8804ca7c93") },
-        { $set: { riskPercent, riskRewardRatio, openPositionLimit } }
+        { $set: { riskPercent, riskRewardRatio, openPositionLimit, autoTrading } }
       );
 
       // Close the database connection

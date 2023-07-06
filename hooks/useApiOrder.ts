@@ -29,7 +29,13 @@ export const openOrder = async ({
   const riskPercent = settings[0].riskPercent;
   const riskRewardRatio = settings[0].riskRewardRatio;
   const openPositionLimit = settings[0].openPositionLimit;
+  const autoTrading = settings[0].autoTrading;
 
+  if (!autoTrading) {
+    console.log("Auto trading is currently disabled.");
+    return { message: "Auto trading is currently disabled." };
+  }
+  
   const openOrders = await getOpenOrders();
   const existingOrder = openOrders.find(
     (order: any) =>

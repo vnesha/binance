@@ -9,6 +9,7 @@ interface textFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   maxCharacters?: number;
   name?: string;
   type?: string;
+  disabled?: boolean;
 }
 
 export default function TextInputField({
@@ -20,6 +21,7 @@ export default function TextInputField({
   defaultValue,
   maxCharacters,
   type,
+  disabled = false,
   ...props
 }: textFieldProps) {
   const [inputValue, setInputValue] = useState(defaultValue || "");
@@ -42,10 +44,16 @@ export default function TextInputField({
 
   return (
     <div
-      className={`my-1 box-border flex h-10 flex-row items-center justify-between rounded bg-gray-middle px-2 text-sm hover:border-[1px] hover:border-yellow hover:px-[0.45rem] ${className}`}
+      className={`my-1 box-border flex h-10 flex-row items-center justify-between rounded px-2 text-sm hover:border-[1px] hover:border-yellow hover:px-[0.45rem] ${className} ${
+        disabled
+          ? "input[disabled]:hover{cursor-none} bg-gray/40 hover:border-none hover:px-[0.5rem]"
+          : "bg-gray-middle"
+      }`}
     >
       <div
-        className={`flex-grow select-none whitespace-nowrap text-gray-light`}
+        className={`flex-grow select-none whitespace-nowrap text-gray-light ${
+          disabled ? "text-gray-light/40" : "text-gray-light"
+        }`}
       >
         {label}
       </div>
@@ -60,8 +68,9 @@ export default function TextInputField({
           onBlur={props.onBlur}
           className={`m-0 border-0 bg-gray/0 p-0 pr-1 text-right text-sm text-gray-lighter caret-yellow focus:border-0 focus:ring-0 ${
             componentName ? inputClass : inputContainerClass
-          }`}
+          } ${disabled ? "cursor-default text-gray-lighter/20" : ""}`}
           type={type}
+          disabled={disabled}
           {...props}
         />
       </div>
