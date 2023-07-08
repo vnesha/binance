@@ -3,7 +3,15 @@ import { MongoClient, ObjectId } from "mongodb";
 
 export async function POST(request: NextRequest) {
   if (request.method === "POST") {
-    const { riskPercent, riskRewardRatio, openPositionLimit, autoTrading } = await request.json();
+    const data = await request.json();
+
+    const updateData: Record<string, unknown> = {};
+
+    ['riskPercent', 'riskRewardRatio', 'openPositionLimit', 'autoTrading', 'tralingTP', 'tralingTPLimit', 'tralingTPDeviation', 'maxProfit'].forEach(key => {
+      if (data[key] !== undefined) {
+        updateData[key] = data[key];
+      }
+    });
 
     try {
       // Connect to the database
@@ -21,7 +29,7 @@ export async function POST(request: NextRequest) {
       // Update the existing object in the database
       await collection.updateOne(
         { _id: ObjectId.createFromHexString("64a5bd6b70b55b8804ca7c93") },
-        { $set: { riskPercent, riskRewardRatio, openPositionLimit, autoTrading } }
+        { $set: updateData }
       );
 
       // Close the database connection
@@ -45,3 +53,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

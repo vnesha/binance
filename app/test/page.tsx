@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import { Switch } from "@/components/ui/switch";
+import { SwitchOption } from "@/components/SwitchOption";
 import TextInputField from "@/components/textInputField";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -10,6 +10,9 @@ export default function TradeSettings() {
   const [riskRewardRatio, setRiskRewardRatio] = useState("0");
   const [openPositionLimit, setOpenPositionLimit] = useState("0");
   const [isAutoTrading, setIsAutoTrading] = useState(false);
+  const [isTralingTP, setIsTralingTP] = useState(false);
+  const [tralingTPLimit, setTralingTPLimit] = useState("0");
+  const [tralingTPDeviation, setTralingTPDeviation] = useState("0");
 
   useEffect(() => {
     async function fetchSettings() {
@@ -20,6 +23,9 @@ export default function TradeSettings() {
         setRiskRewardRatio(String(settings.riskRewardRatio));
         setOpenPositionLimit(String(settings.openPositionLimit));
         setIsAutoTrading(settings.autoTrading);
+        setIsTralingTP(settings.tralingTP);
+        setTralingTPLimit(String(settings.tralingTPLimit));
+        setTralingTPDeviation(String(settings.tralingTPDeviation));
       } else {
         console.error("Error fetching settings");
       }
@@ -39,6 +45,9 @@ export default function TradeSettings() {
         riskRewardRatio,
         openPositionLimit,
         autoTrading: isAutoTrading,
+        tralingTP: isTralingTP,
+        tralingTPLimit,
+        tralingTPDeviation,
       }),
     });
 
@@ -92,15 +101,12 @@ export default function TradeSettings() {
             }
           }}
         />
-        <div className="mb-1 mt-6 flex flex-row items-center justify-between text-sm text-gray-lighter">
-          <div>Auto Trading</div>
-          <div className="flex items-center">
-            <Switch
-              checked={isAutoTrading}
-              onCheckedChange={setIsAutoTrading}
-            />{" "}
-          </div>
-        </div>
+        <SwitchOption
+          className="mt-4"
+          name="Auto Trading"
+          checked={isAutoTrading}
+          onCheckedChange={setIsAutoTrading}
+        />
         <TextInputField
           type="number"
           label="Open Position Limit"
@@ -114,7 +120,43 @@ export default function TradeSettings() {
               setOpenPositionLimit(value);
             }
           }}
+          // onBlur={handleSave}
         />
+        <SwitchOption
+          className="mt-4"
+          name="Traling Take Profit"
+          disabled={!isAutoTrading}
+          checked={isTralingTP}
+          onCheckedChange={setIsTralingTP}
+        />
+        <TextInputField
+          type="number"
+          label="Traling Take Profit Limit"
+          className="w-[100%]"
+          sufix="USDT"
+          name="tralingTPLimit"
+          value={tralingTPLimit}
+          disabled={!isAutoTrading || !isTralingTP}
+          onChange={(event) => {
+            setTralingTPLimit(event.target.value);
+          }}
+        />
+        <TextInputField
+          type="number"
+          label="Traling Take Profit Deviation"
+          className="w-[100%]"
+          sufix="%"
+          name="tralingTPDeviation"
+          value={tralingTPDeviation}
+          disabled={!isAutoTrading || !isTralingTP}
+          onChange={(event) => {
+            const value = event.target.value;
+            if (value.length <= 4) {
+              setTralingTPDeviation(value);
+            }
+          }}
+        />
+
         <div className="flex flex-col"></div>
       </div>
       <button

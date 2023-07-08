@@ -1,3 +1,4 @@
+require('./server/cronJob');
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
@@ -22,4 +23,5 @@ app.use('/binance', createProxyMiddleware({
 app.listen(port, () => {
   console.log(`Proxy server is running at http://localhost:${port}`);
 });
+
 

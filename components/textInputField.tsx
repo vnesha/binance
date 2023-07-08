@@ -74,7 +74,13 @@ export default function TextInputField({
           {...props}
         />
       </div>
-      <div className="box-border select-none text-gray-lighter">{sufix}</div>
+      <div
+        className={`box-border select-none text-gray-lighter ${
+          disabled ? "text-gray-lighter/20" : ""
+        }`}
+      >
+        {sufix}
+      </div>
     </div>
   );
 }
