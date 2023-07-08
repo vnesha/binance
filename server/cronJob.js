@@ -36,14 +36,14 @@ function myCronJob() {
                         });
                 } else if ((maxProfit - totalUnRealizedProfit) / maxProfit * 100 > tralingTPDeviation) {
                     // Here, close all positions
-                    // axios.post('http://localhost:3000/api/closeAllPositions')
-                    //     .then(res => {
-                    //         console.log('All positions closed successfully');
-                    //     })
-                    //     .catch(error => {
-                    //         console.error('Error closing all positions:');
-                    //         handleAxiosError(error);
-                    //     });
+                    axios.post('http://localhost:3000/api/close-all-positions-and-orders')
+                        .then(res => {
+                            console.log('All positions closed successfully');
+                        })
+                        .catch(error => {
+                            console.error('Error closing all positions:');
+                            handleAxiosError(error);
+                        });
 
                     // Reset maxProfit
                     const settingsUrl = 'http://localhost:3000/api/save-settings';

@@ -1,3 +1,5 @@
+import { CloseAllPositions } from "./buttonCloseAllPositions";
+
 export function PositionHeader({ dataIsEmpty }: { dataIsEmpty: boolean }) {
   return (
     <div
@@ -14,7 +16,7 @@ export function PositionHeader({ dataIsEmpty }: { dataIsEmpty: boolean }) {
       <div className="flex-shrink-0 flex-grow basis-24">Margin</div>
       <div className="flex-shrink-0 flex-grow basis-20">PNL (ROE %)</div>
       <div className="flex-shrink-0 flex-grow basis-[25px] text-yellow">
-        Close All Positions
+        <CloseAllPositions />
       </div>
     </div>
   );

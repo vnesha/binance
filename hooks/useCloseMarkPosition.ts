@@ -6,7 +6,7 @@ import { AxiosError } from "../types/types";
 import { formatOrderType } from "@/util/formatOrderType";
 import axios from "axios";
 
-const closePosition = async ({
+export const closePosition = async ({
   symbol,
   quantity,
 }: {
