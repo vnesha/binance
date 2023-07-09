@@ -298,6 +298,7 @@ export const usePositionData = () => {
     };
   }, [positions.data, account.data, exchangeInfo.data, leverageBrackets.data,
     lastJsonMessage]); // Dodajte exchangeInfo.data u zavisnosti
+
   return {
     combinedData,
     isLoading,

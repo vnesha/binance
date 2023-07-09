@@ -16,7 +16,9 @@ function myCronJob() {
                     return total + parseFloat(order.unRealizedProfit);
                 }, 0);
 
-                console.log('Trailing TP Limit:', tralingTPLimit, 'Traling TP Deviation:', tralingTPDeviation, 'Total Unrealized Profit:', totalUnRealizedProfit);
+                const currentDeviation = ((Math.abs(maxProfit) - Math.abs(totalUnRealizedProfit)) / Math.abs(maxProfit)) * 100;
+
+                console.log('Limit:', tralingTPLimit, 'Deviation:', tralingTPDeviation, 'Current Deviation:', currentDeviation, 'PnL:', totalUnRealizedProfit, 'Max Profit', maxProfit);
 
                 if (totalUnRealizedProfit > tralingTPLimit && totalUnRealizedProfit > maxProfit) {
                     maxProfit = totalUnRealizedProfit;
@@ -34,14 +36,16 @@ function myCronJob() {
                             console.error('Error sending data to the server:');
                             handleAxiosError(error);
                         });
-                } else if ((maxProfit - totalUnRealizedProfit) / maxProfit * 100 > tralingTPDeviation) {
+                }
+
+                if (((maxProfit - Math.abs(totalUnRealizedProfit)) / maxProfit) * 100 > tralingTPDeviation) {
                     // Here, close all positions
                     axios.post('http://localhost:3000/api/close-all-positions-and-orders')
                         .then(res => {
-                            console.log('All positions closed successfully');
+                            console.log('All positions and orders closed successfully');
                         })
                         .catch(error => {
-                            console.error('Error closing all positions:');
+                            console.error('Error closing all positions and orders:');
                             handleAxiosError(error);
                         });
 
@@ -67,6 +71,7 @@ function myCronJob() {
             console.error('Greška prilikom slanja HTTP zahteva:', error);
         });
 }
+
 
 function handleAxiosError(error) {
     if (error.response) {
