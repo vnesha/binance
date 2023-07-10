@@ -194,6 +194,7 @@ export default function TradeSettings() {
         <div className="flex justify-between">
           <div className="mr-2 w-full">
             <TextArea
+              extraText="Clear list"
               label="Excluded Symbols"
               name="excludedSymbols"
               disabled={!isAutoTrading || !isTralingTP}
@@ -213,9 +214,13 @@ export default function TradeSettings() {
                   setExcludedSymbols(symbols);
                 }
               }}
+              onExtraTextClick={() => {
+                setExcludedSymbols([]); // Čistite listu
+                setSelectedSymbol("Select Symbol"); // Resetujete selektovani simbol
+              }}
             />
           </div>
-          <div className="flex items-center">
+          <div className="mt-1 flex items-baseline">
             <SelectSymbol
               disabled={!isAutoTrading || !isTralingTP}
               selectedSymbol={selectedSymbol || ""}

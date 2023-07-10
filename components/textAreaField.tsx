@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface TextAreaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -8,6 +8,7 @@ interface TextAreaProps
   maxCharacters?: number;
   name?: string;
   disabled?: boolean;
+  onExtraTextClick?: () => void;
 }
 
 export default function TextArea({
@@ -16,13 +17,23 @@ export default function TextArea({
   defaultValue,
   maxCharacters,
   disabled = false,
+  extraText = "",
+  onExtraTextClick,
   ...props
-}: TextAreaProps) {
+}: TextAreaProps & { extraText?: string; onExtraTextClick?: () => void }) {
   const [inputValue, setInputValue] = useState(defaultValue || "");
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (defaultValue) setInputValue(defaultValue.toString());
   }, [defaultValue]);
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+  }, [inputValue]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (maxCharacters && event.target.value.length > maxCharacters) {
@@ -31,30 +42,57 @@ export default function TextArea({
     setInputValue(event.target.value);
   };
 
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+  }, []);
+
   return (
     <div
-      className={`my-1 rounded ${className} ${
+      className={`relative my-1 rounded ${className} ${
         disabled ? "bg-gray/40" : "bg-gray-middle"
       }`}
     >
-      {label && (
-        <div
-          className={`pl-2 pt-2 text-sm text-gray-light ${
-            disabled ? "text-gray-light/40" : "text-gray-light"
-          }`}
-        >
-          {label}
-        </div>
-      )}
+      <div className="flex items-baseline justify-between pt-2">
+        {label && (
+          <div
+            className={`pl-2 text-sm text-gray-light ${
+              disabled ? "text-gray-light/40" : "text-gray-light"
+            }`}
+          >
+            {label}
+          </div>
+        )}
+        {extraText && (
+          <div
+            className={`pr-2 text-sm ${
+              disabled
+                ? "cursor-default text-yellow/20"
+                : "cursor-pointer text-yellow"
+            }`}
+            onClick={disabled ? undefined : onExtraTextClick}
+          >
+            {extraText}
+          </div>
+        )}
+      </div>
       <textarea
+        ref={textAreaRef}
         name={props.name}
         value={inputValue}
         onChange={handleInputChange}
-        className={`h-[32px] w-full overflow-y-hidden border-0 bg-gray/0 p-2 text-sm text-gray-lighter caret-yellow focus:border-0 focus:ring-0 ${
-          disabled ? "cursor-default text-gray-lighter/20" : ""
+        className={`w-full border-0 bg-gray/0 p-2 text-sm text-gray-lighter caret-yellow focus:border-0 focus:ring-0 ${
+          disabled ? "cursor-default resize-none text-gray-lighter/20" : ""
         }`}
         disabled={disabled}
         {...props}
+        style={{
+          overflow: "hidden",
+          minHeight: "32px",
+          height: "auto",
+        }}
       />
     </div>
   );
