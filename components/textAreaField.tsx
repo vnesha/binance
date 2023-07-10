@@ -28,13 +28,6 @@ export default function TextArea({
     if (defaultValue) setInputValue(defaultValue.toString());
   }, [defaultValue]);
 
-  useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = "auto";
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
-    }
-  }, [inputValue]);
-
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (maxCharacters && event.target.value.length > maxCharacters) {
       return;
@@ -46,6 +39,12 @@ export default function TextArea({
     if (textAreaRef.current) {
       textAreaRef.current.style.height = "auto";
       textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+  }, [inputValue]);
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "32px";
     }
   }, []);
 
@@ -90,8 +89,11 @@ export default function TextArea({
         {...props}
         style={{
           overflow: "hidden",
+          resize: "none",
           minHeight: "32px",
-          height: "auto",
+          height: textAreaRef.current
+            ? `${textAreaRef.current.scrollHeight}px`
+            : "auto",
         }}
       />
     </div>
