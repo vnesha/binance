@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, ChangeEvent } from "react";
 
 interface TextAreaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -8,7 +8,9 @@ interface TextAreaProps
   maxCharacters?: number;
   name?: string;
   disabled?: boolean;
+  extraText?: string;
   onExtraTextClick?: () => void;
+  handleSelectSymbol?: (symbol: string) => void; // Promenjeno ime propa
 }
 
 export default function TextArea({
@@ -16,24 +18,19 @@ export default function TextArea({
   label,
   defaultValue,
   maxCharacters,
+  name,
   disabled = false,
   extraText = "",
   onExtraTextClick,
+  handleSelectSymbol, // Promenjeno ime propa
   ...props
-}: TextAreaProps & { extraText?: string; onExtraTextClick?: () => void }) {
+}: TextAreaProps) {
   const [inputValue, setInputValue] = useState(defaultValue || "");
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (defaultValue) setInputValue(defaultValue.toString());
   }, [defaultValue]);
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (maxCharacters && event.target.value.length > maxCharacters) {
-      return;
-    }
-    setInputValue(event.target.value);
-  };
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -46,7 +43,35 @@ export default function TextArea({
     if (textAreaRef.current) {
       textAreaRef.current.style.height = "32px";
     }
-  }, []);
+  }, [name]);
+
+  useEffect(() => {
+    if (textAreaRef.current && name) {
+      textAreaRef.current.style.height = "32px";
+    }
+  }, [name, props.value]);
+
+  useEffect(() => {
+    if (textAreaRef.current && name && inputValue === "") {
+      textAreaRef.current.style.height = "32px";
+    }
+  }, [name, inputValue]);
+
+  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    if (maxCharacters && event.target.value.length > maxCharacters) {
+      return;
+    }
+    setInputValue(event.target.value);
+
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+
+    if (handleSelectSymbol) {
+      handleSelectSymbol(event.target.value);
+    }
+  };
 
   return (
     <div
@@ -64,7 +89,7 @@ export default function TextArea({
             {label}
           </div>
         )}
-        {extraText && (
+        {onExtraTextClick && (
           <div
             className={`pr-2 text-sm ${
               disabled
@@ -79,9 +104,9 @@ export default function TextArea({
       </div>
       <textarea
         ref={textAreaRef}
-        name={props.name}
+        name={name}
         value={inputValue}
-        onChange={handleInputChange}
+        onChange={handleChange}
         className={`w-full border-0 bg-gray/0 p-2 text-sm text-gray-lighter caret-yellow focus:border-0 focus:ring-0 ${
           disabled ? "cursor-default resize-none text-gray-lighter/20" : ""
         }`}

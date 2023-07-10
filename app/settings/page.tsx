@@ -16,6 +16,7 @@ export default function TradeSettings() {
   const [isTralingTP, setIsTralingTP] = useState(false);
   const [tralingTPLimit, setTralingTPLimit] = useState("0");
   const [tralingTPDeviation, setTralingTPDeviation] = useState("0");
+  const [PnL, setPnL] = useState("0");
   const [excludedSymbols, setExcludedSymbols] = useState<string[]>([]);
   const [selectedSymbol, setSelectedSymbol] = useState<string>("Select Symbol");
   const { perpetualSymbols } = usePositionData();
@@ -57,6 +58,7 @@ export default function TradeSettings() {
         setIsTralingTP(settings.tralingTP);
         setTralingTPLimit(String(settings.tralingTPLimit));
         setTralingTPDeviation(String(settings.tralingTPDeviation));
+        setPnL(String(settings.PnL));
 
         // Update excludedSymbols state from fetched settings
         setExcludedSymbols(settings.excludedSymbols);
@@ -82,6 +84,7 @@ export default function TradeSettings() {
         tralingTP: isTralingTP,
         tralingTPLimit,
         tralingTPDeviation,
+        PnL,
         excludedSymbols: excludedSymbols.filter((symbol) => symbol !== ""), // Ovde se vrši filtriranje praznih simbola
       }),
     });
@@ -204,7 +207,6 @@ export default function TradeSettings() {
               onChange={(event) => {
                 const value = event.target.value.trim();
 
-                // Provera da li je tekst prazan ili sadrži simbole pre filtriranja
                 if (value === "" || value.includes(",")) {
                   const symbols = value
                     .split(",")
@@ -215,9 +217,10 @@ export default function TradeSettings() {
                 }
               }}
               onExtraTextClick={() => {
-                setExcludedSymbols([]); // Čistite listu
-                setSelectedSymbol("Select Symbol"); // Resetujete selektovani simbol
+                setExcludedSymbols([]);
+                setSelectedSymbol("Select Symbol");
               }}
+              handleSelectSymbol={handleSelect}
             />
           </div>
           <div className="mt-1 flex items-baseline">
@@ -231,6 +234,16 @@ export default function TradeSettings() {
         </div>
         <div className="flex flex-col"></div>
       </div>
+      <input
+        type="number"
+        value={PnL}
+        onChange={(event) => {
+          const value = event.target.value;
+          if (value.length <= 4) {
+            setPnL(value);
+          }
+        }}
+      />
       <button
         className="mt-6 w-full cursor-pointer rounded bg-yellow px-4 py-[10px] text-sm font-medium text-[#181a20] hover:bg-yellow/90"
         onClick={handleSave}

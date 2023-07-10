@@ -7,30 +7,48 @@ function myCronJob() {
 
     Promise.all([axios.get(url1), axios.get(url2)])
         .then(([response1, response2]) => {
-            const { autoTrading, tralingTPLimit, tralingTPDeviation, maxProfit: maxProfitFromDB } = response1.data;
-            let maxProfit = maxProfitFromDB;
+            const { autoTrading, tralingTPLimit, tralingTPDeviation, maxProfit: maxProfitFromDB, PnL } = response1.data;
+            let maxProfitNumber = parseFloat(maxProfitFromDB);
+            let maxUnrealizedProfit = maxProfitNumber;
             const openPositionOrders = response2.data;
 
+
             if (autoTrading) {
-                const totalUnRealizedProfit = openPositionOrders.reduce((total, order) => {
+                const PnL = openPositionOrders.reduce((total, order) => {
                     return total + parseFloat(order.unRealizedProfit);
                 }, 0);
+                const totalUnRealizedProfit = parseFloat(PnL);
 
-                const currentDeviation = ((Math.abs(maxProfit) - Math.abs(totalUnRealizedProfit)) / Math.abs(maxProfit)) * 100;
+                let tralingTPLimitNumber = parseFloat(tralingTPLimit);
+                let tralingTPDeviationNumber = parseFloat(tralingTPDeviation);
 
-                console.log('Limit:', tralingTPLimit, 'Deviation:', tralingTPDeviation, 'Current Deviation:', currentDeviation, 'PnL:', totalUnRealizedProfit, 'Max Profit', maxProfit);
+                if (totalUnRealizedProfit > maxUnrealizedProfit) {
+                    maxUnrealizedProfit = totalUnRealizedProfit;
+                }
 
-                if (totalUnRealizedProfit > tralingTPLimit && totalUnRealizedProfit > maxProfit) {
-                    maxProfit = totalUnRealizedProfit;
+                let currentDeviation;
+                if (maxUnrealizedProfit > 0) {
+                    currentDeviation = ((maxUnrealizedProfit - totalUnRealizedProfit) / maxUnrealizedProfit) * 100;
+                } else {
+                    currentDeviation = 0;
+                }
+
+                console.log('Limit:', tralingTPLimitNumber, 'Deviation:', tralingTPDeviationNumber, 'Current Deviation:', currentDeviation, 'PnL:', totalUnRealizedProfit, 'Max Profit', maxProfitNumber);
+
+                if (totalUnRealizedProfit > tralingTPLimitNumber && totalUnRealizedProfit > maxProfitNumber) {
+                    maxProfitNumber = totalUnRealizedProfit;
+                    console.log("New maxProfitNumber:", maxProfitNumber);
 
                     const settingsUrl = 'http://localhost:3000/api/save-settings';
                     const data = {
-                        maxProfit: maxProfit
+                        maxProfit: maxProfitNumber
                     };
+
+                    console.log("Data sent to the server:", data);
 
                     axios.post(settingsUrl, data)
                         .then(res => {
-                            console.log('Data successfully sent to the server:', res.data, 'Max profit:', maxProfit);
+                            console.log('Data successfully sent to the server:', res.data, 'Max profit:', maxProfitNumber);
                         })
                         .catch(error => {
                             console.error('Error sending data to the server:');
@@ -38,7 +56,7 @@ function myCronJob() {
                         });
                 }
 
-                if (((maxProfit - Math.abs(totalUnRealizedProfit)) / maxProfit) * 100 > tralingTPDeviation) {
+                if (currentDeviation >= tralingTPDeviationNumber) {
                     // Here, close all positions
                     axios.post('http://localhost:3000/api/close-all-positions-and-orders')
                         .then(res => {
@@ -71,7 +89,6 @@ function myCronJob() {
             console.error('Greška prilikom slanja HTTP zahteva:', error);
         });
 }
-
 
 function handleAxiosError(error) {
     if (error.response) {
