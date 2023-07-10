@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
 
     const updateData: Record<string, unknown> = {};
 
-    ['riskPercent', 'riskRewardRatio', 'openPositionLimit', 'autoTrading', 'tralingTP', 'tralingTPLimit', 'tralingTPDeviation', 'maxProfit'].forEach(key => {
+    ['riskPercent', 'riskRewardRatio', 'openPositionLimit', 'autoTrading', 'tralingTP', 'tralingTPLimit', 'tralingTPDeviation', 'maxProfit', 'excludedSymbols'].forEach(key => {
       if (data[key] !== undefined) {
         updateData[key] = data[key];
       }

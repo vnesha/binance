@@ -1,8 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { SwitchOption } from "@/components/SwitchOption";
 import TextInputField from "@/components/textInputField";
+import { SelectSymbol } from "@/components/selectSymbolSettings";
+import { usePositionData } from "@/hooks/useAllPositionData";
+import TextArea from "@/components/textAreaField";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function TradeSettings() {
@@ -13,6 +16,34 @@ export default function TradeSettings() {
   const [isTralingTP, setIsTralingTP] = useState(false);
   const [tralingTPLimit, setTralingTPLimit] = useState("0");
   const [tralingTPDeviation, setTralingTPDeviation] = useState("0");
+  const [excludedSymbols, setExcludedSymbols] = useState<string[]>([]);
+  const [selectedSymbol, setSelectedSymbol] = useState<string>("Select Symbol");
+  const { perpetualSymbols } = usePositionData();
+  const [placeholder] = useState<string | null>("Select Symbol");
+
+  const handleSelect = useCallback(
+    (symbol: string) => {
+      // Check if the selected symbol is empty
+      if (symbol.trim() === "") {
+        return;
+      }
+
+      setSelectedSymbol(symbol);
+
+      // Check if the selected symbol is already in the excluded list
+      if (!excludedSymbols.includes(symbol)) {
+        // Add the selected symbol to the excluded list
+        setExcludedSymbols((prevSymbols) => [...prevSymbols, symbol]);
+      }
+    },
+    [setSelectedSymbol, excludedSymbols]
+  );
+
+  useEffect(() => {
+    if (selectedSymbol === "" && perpetualSymbols.length > 0) {
+      setSelectedSymbol(perpetualSymbols[0]);
+    }
+  }, [selectedSymbol, perpetualSymbols]);
 
   useEffect(() => {
     async function fetchSettings() {
@@ -26,6 +57,9 @@ export default function TradeSettings() {
         setIsTralingTP(settings.tralingTP);
         setTralingTPLimit(String(settings.tralingTPLimit));
         setTralingTPDeviation(String(settings.tralingTPDeviation));
+
+        // Update excludedSymbols state from fetched settings
+        setExcludedSymbols(settings.excludedSymbols);
       } else {
         console.error("Error fetching settings");
       }
@@ -48,6 +82,7 @@ export default function TradeSettings() {
         tralingTP: isTralingTP,
         tralingTPLimit,
         tralingTPDeviation,
+        excludedSymbols: excludedSymbols.filter((symbol) => symbol !== ""), // Ovde se vrši filtriranje praznih simbola
       }),
     });
 
@@ -156,7 +191,39 @@ export default function TradeSettings() {
             }
           }}
         />
+        <div className="flex justify-between">
+          <div className="mr-2 w-full">
+            <TextArea
+              label="Excluded Symbols"
+              name="excludedSymbols"
+              disabled={!isAutoTrading || !isTralingTP}
+              value={
+                excludedSymbols.length > 0 ? excludedSymbols.join(", ") : ""
+              }
+              onChange={(event) => {
+                const value = event.target.value.trim();
 
+                // Provera da li je tekst prazan ili sadrži simbole pre filtriranja
+                if (value === "" || value.includes(",")) {
+                  const symbols = value
+                    .split(",")
+                    .map((symbol) => symbol.trim())
+                    .filter((symbol) => symbol !== "");
+
+                  setExcludedSymbols(symbols);
+                }
+              }}
+            />
+          </div>
+          <div className="flex items-center">
+            <SelectSymbol
+              disabled={!isAutoTrading || !isTralingTP}
+              selectedSymbol={selectedSymbol || ""}
+              handleSelect={handleSelect}
+              placeholder={placeholder || ""}
+            />
+          </div>
+        </div>
         <div className="flex flex-col"></div>
       </div>
       <button

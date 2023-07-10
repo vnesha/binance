@@ -18,7 +18,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex items-center border-0 pr-3 pt-2 text-base outline-none disabled:cursor-not-allowed",
+      "flex items-center border-0   text-base outline-none disabled:cursor-default",
       className
     )}
     {...props}

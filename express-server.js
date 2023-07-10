@@ -1,4 +1,4 @@
-require('./server/cronJob');
+// require('./server/cronJob');
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
