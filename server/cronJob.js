@@ -17,7 +17,7 @@ function myCronJob() {
                 const PnL = openPositionOrders.reduce((total, order) => {
                     return total + parseFloat(order.unRealizedProfit);
                 }, 0);
-                const totalUnRealizedProfit = parseFloat(PnL);
+                const totalUnRealizedProfit = parseFloat(PnL.toFixed(2));
 
                 let tralingTPLimitNumber = parseFloat(tralingTPLimit);
                 let tralingTPDeviationNumber = parseFloat(tralingTPDeviation);

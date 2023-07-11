@@ -4,22 +4,41 @@ import { toast, ToastContainer } from "react-toastify";
 import { SwitchOption } from "@/components/SwitchOption";
 import TextInputField from "@/components/textInputField";
 import { SelectSymbol } from "@/components/selectSymbolSettings";
-import { usePositionData } from "@/hooks/useAllPositionData";
+// import { usePositionData } from "@/hooks/useAllPositionData";
 import TextArea from "@/components/textAreaField";
 import "react-toastify/dist/ReactToastify.css";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+
+type SettingsData = {
+  riskPercent: number;
+  riskRewardRatio: number;
+  openPositionLimit: number;
+  autoTrading: boolean;
+  tralingTP: boolean;
+  tralingTPLimit: number;
+  tralingTPDeviation: number;
+  PnL: number;
+  excludedSymbols: string[];
+};
+
+const fetchSettings = async (): Promise<SettingsData> => {
+  const response = await axios.get<SettingsData>("/api/get-settings/");
+  return response.data;
+};
 
 export default function TradeSettings() {
-  const [riskPercent, setRiskPercent] = useState("0");
-  const [riskRewardRatio, setRiskRewardRatio] = useState("0");
-  const [openPositionLimit, setOpenPositionLimit] = useState("0");
+  const [riskPercent, setRiskPercent] = useState<string>("0");
+  const [riskRewardRatio, setRiskRewardRatio] = useState<string>("0");
+  const [openPositionLimit, setOpenPositionLimit] = useState<string>("0");
   const [isAutoTrading, setIsAutoTrading] = useState(false);
   const [isTralingTP, setIsTralingTP] = useState(false);
-  const [tralingTPLimit, setTralingTPLimit] = useState("0");
-  const [tralingTPDeviation, setTralingTPDeviation] = useState("0");
-  const [PnL, setPnL] = useState("0");
+  const [tralingTPLimit, setTralingTPLimit] = useState<string>("0");
+  const [tralingTPDeviation, setTralingTPDeviation] = useState<string>("0");
+  const [PnL, setPnL] = useState<string>("0");
   const [excludedSymbols, setExcludedSymbols] = useState<string[]>([]);
   const [selectedSymbol, setSelectedSymbol] = useState<string>("Select Symbol");
-  const { perpetualSymbols } = usePositionData();
+  // const { perpetualSymbols } = usePositionData();
   const [placeholder] = useState<string | null>("Select Symbol");
 
   const handleSelect = useCallback(
@@ -40,35 +59,25 @@ export default function TradeSettings() {
     [setSelectedSymbol, excludedSymbols]
   );
 
-  useEffect(() => {
-    if (selectedSymbol === "" && perpetualSymbols.length > 0) {
-      setSelectedSymbol(perpetualSymbols[0]);
-    }
-  }, [selectedSymbol, perpetualSymbols]);
+  const { data, isLoading, error, refetch } = useQuery(
+    ["settings"],
+    fetchSettings
+  );
 
   useEffect(() => {
-    async function fetchSettings() {
-      const response = await fetch("/api/get-settings");
-      if (response.ok) {
-        const settings = await response.json();
-        setRiskPercent(String(settings.riskPercent));
-        setRiskRewardRatio(String(settings.riskRewardRatio));
-        setOpenPositionLimit(String(settings.openPositionLimit));
-        setIsAutoTrading(settings.autoTrading);
-        setIsTralingTP(settings.tralingTP);
-        setTralingTPLimit(String(settings.tralingTPLimit));
-        setTralingTPDeviation(String(settings.tralingTPDeviation));
-        setPnL(String(settings.PnL));
-
-        // Update excludedSymbols state from fetched settings
-        setExcludedSymbols(settings.excludedSymbols);
-      } else {
-        console.error("Error fetching settings");
-      }
+    if (data) {
+      const settings: SettingsData = data;
+      setRiskPercent(settings.riskPercent.toString());
+      setRiskRewardRatio(settings.riskRewardRatio.toString());
+      setOpenPositionLimit(settings.openPositionLimit.toString());
+      setIsAutoTrading(settings.autoTrading);
+      setIsTralingTP(settings.tralingTP);
+      setTralingTPLimit(settings.tralingTPLimit.toString());
+      setTralingTPDeviation(settings.tralingTPDeviation.toString());
+      setPnL(settings.PnL.toString());
+      setExcludedSymbols(settings.excludedSymbols);
     }
-
-    fetchSettings();
-  }, []);
+  }, [data]);
 
   const handleSave = async () => {
     const response = await fetch("/api/save-settings", {
@@ -85,7 +94,7 @@ export default function TradeSettings() {
         tralingTPLimit,
         tralingTPDeviation,
         PnL,
-        excludedSymbols: excludedSymbols.filter((symbol) => symbol !== ""), // Ovde se vrši filtriranje praznih simbola
+        excludedSymbols: excludedSymbols.filter((symbol) => symbol !== ""),
       }),
     });
 
@@ -105,6 +114,14 @@ export default function TradeSettings() {
       console.error("Error saving settings");
     }
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: An error occurred.</div>;
+  }
 
   return (
     <div>

@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 
 interface textFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
