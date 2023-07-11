@@ -1,3 +1,4 @@
+'use client';
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
