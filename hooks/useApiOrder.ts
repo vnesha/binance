@@ -116,7 +116,7 @@ export const openOrder = async ({
 
       const stopLossConfig = postData(stopLossParams);
 
-      // console.log('Request to set stop loss:', { url: BASE_URL, params: stopLossParams, config: stopLossConfig });
+      console.log('Request to set stop loss:', { url: BASE_URL, params: stopLossParams, config: stopLossConfig });
 
       const stopLossResponse = await axios.post(BASE_URL, null, stopLossConfig);
       console.log(
@@ -138,7 +138,7 @@ export const openOrder = async ({
 
       const takeProfitConfig = postData(takeProfitParams);
 
-      // console.log('Request to set take profit:', { url: BASE_URL, params: takeProfitParams, config: takeProfitConfig });
+      console.log('Request to set take profit:', { url: BASE_URL, params: takeProfitParams, config: takeProfitConfig });
 
       const takeProfitResponse = await axios.post(
         BASE_URL,

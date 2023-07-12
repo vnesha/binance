@@ -5,17 +5,26 @@ export async function POST(request: NextRequest) {
   let symbol, markPrice, stopLoss;
 
   try {
-    // Pretpostavimo da je telo zahteva validan JSON
     const body = await request.json();
     symbol = body.symbol;
     markPrice = body.markPrice;
     stopLoss = body.stopLoss;
+
+    // Dodajemo logovanje sirovih podataka
+    console.log("Raw body data: ", body);
   } catch (error) {
-    // Ako telo zahteva nije validan JSON, pretpostavimo da su parametri u zaglavlju
     const { searchParams } = new URL(request.nextUrl);
     symbol = searchParams.get('symbol');
     markPrice = searchParams.get('markPrice');
     stopLoss = searchParams.get('stopLoss');
+
+    // Dodajemo logovanje sirovih podataka iz URL parametara
+    console.log("Raw URL data: ", {symbol, markPrice, stopLoss});
+  }
+
+  // Provjeravamo da li symbol sadrži ".p" i ako da, izbacujemo ga
+  if (symbol) {
+    symbol = symbol.replace(/\.P$/, '');
   }
 
   if (!symbol || !markPrice || !stopLoss) {
