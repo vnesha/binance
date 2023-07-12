@@ -1,11 +1,6 @@
 import { fetchData } from "@/hooks/useFetchData";
 import { MongoClient } from "mongodb";
-
-
-const API_URL =
-  process.env.NEXT_PUBLIC_NODE_ENV === "production"
-    ? process.env.NEXT_PUBLIC_API_URL
-    : process.env.NEXT_PUBLIC_TEST_API_URL;
+import { API_URL } from "./cryptoConfig";
 
 export async function getAccountInfo() {
   const urlAccount = `${API_URL}/fapi/v2/account`;

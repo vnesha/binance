@@ -1,6 +1,7 @@
 import axios from "axios";
 import { postData } from "./usePostData";
 import { AxiosError, AxiosResponse } from "axios";
+import { API_URL } from "@/util/cryptoConfig";
 import {
   getAccountInfo,
   getExchangeInfo,
@@ -23,7 +24,7 @@ export const openOrder = async ({
   markPrice: number;
   stopLoss: number;
 }) => {
-  const BASE_URL = `https://testnet.binancefuture.com/fapi/v1/order`;
+  const BASE_URL = `${API_URL}/fapi/v1/order`;
 
   const settings = await getSettings();
   const riskPercent = settings[0].riskPercent;
@@ -62,20 +63,25 @@ export const openOrder = async ({
   const lotSizeFilter = symbolInfo?.filters.find(
     (filter: { filterType: string }) => filter.filterType === "MARKET_LOT_SIZE"
   );
+  const priceFilter = symbolInfo?.filters.find(
+    (filter: { filterType: string }) => filter.filterType === "PRICE_FILTER"
+  );
   const stepSize = lotSizeFilter?.stepSize;
+  const tickSize = priceFilter?.tickSize;
   const baseAssetPrecision =
     stepSize && stepSize.includes(".") ? stepSize.split(".")[1].length : 0;
+  const quotePrecision = tickSize
+  ? tickSize.toString().split(".")[1]?.length || 0
+  : 0;  
 
-    const riskDollars = (riskPercent * walletBalance) / 100;
+  const riskDollars = (riskPercent * walletBalance) / 100;
   const quantityRaw = riskDollars / Math.abs(markPrice - stopLoss);
   const quantity = quantityRaw.toFixed(baseAssetPrecision);
 
   const takeProfit =
-    markPrice > stopLoss
-      ? Number(markPrice) +
-        Math.abs(Number(markPrice) - Number(stopLoss)) * riskRewardRatio
-      : Number(markPrice) -
-        Math.abs(Number(markPrice) - Number(stopLoss)) * riskRewardRatio;
+  markPrice > stopLoss
+    ? (Number(markPrice) + Math.abs(Number(markPrice) - Number(stopLoss)) * riskRewardRatio).toFixed(quotePrecision)
+    : (Number(markPrice) - Math.abs(Number(markPrice) - Number(stopLoss)) * riskRewardRatio).toFixed(quotePrecision);
 
   const side = markPrice > stopLoss ? "BUY" : "SELL";
 
@@ -98,16 +104,20 @@ export const openOrder = async ({
     console.log("Position opened successfully", response.data);
 
     if (stopLoss) {
+      let stopLossNumber = Number(stopLoss);
       const stopLossParams = {
         symbol: symbol,
         side: side === "BUY" ? "SELL" : "BUY",
         type: "STOP_MARKET",
         quantity: quantity,
-        stopPrice: stopLoss,
+        stopPrice: stopLossNumber.toFixed(quotePrecision),
         timestamp: Date.now(),
       };
 
       const stopLossConfig = postData(stopLossParams);
+
+      // console.log('Request to set stop loss:', { url: BASE_URL, params: stopLossParams, config: stopLossConfig });
+
       const stopLossResponse = await axios.post(BASE_URL, null, stopLossConfig);
       console.log(
         "Stop Loss order created successfully",
@@ -116,16 +126,20 @@ export const openOrder = async ({
     }
 
     if (takeProfit) {
+      let takeProfitNumber = Number(takeProfit);
       const takeProfitParams = {
         symbol: symbol,
         side: side === "BUY" ? "SELL" : "BUY",
         type: "TAKE_PROFIT_MARKET",
         quantity: quantity,
-        stopPrice: takeProfit,
+        stopPrice: takeProfitNumber.toFixed(quotePrecision),
         timestamp: Date.now(),
       };
 
       const takeProfitConfig = postData(takeProfitParams);
+
+      // console.log('Request to set take profit:', { url: BASE_URL, params: takeProfitParams, config: takeProfitConfig });
+
       const takeProfitResponse = await axios.post(
         BASE_URL,
         null,

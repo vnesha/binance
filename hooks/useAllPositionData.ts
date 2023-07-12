@@ -3,6 +3,7 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchData } from "./useFetchData";
+import { API_URL } from "@/util/cryptoConfig";
 import {
   CombinedDataType,
   AccountType,
@@ -56,23 +57,6 @@ export const usePositionData = () => {
 
   const symbolToWebSocket = useRef<{ [symbol: string]: WebSocket }>({});
 
-  // const listenToSymbolPrice = (symbol: string, callback: (price: string) => void) => {
-  //   const ws = new WebSocket(`wss://fstream.binance.com/ws/${symbol.toLowerCase()}@trade`);
-
-  //   ws.onerror = (error) => {
-  //     console.error(`WebSocket error: ${error}`);
-  //   };
-
-  //   ws.onmessage = (event) => {
-  //     const message = JSON.parse(event.data) as BinanceResponse;
-
-  //     if (message.s && message.s.toUpperCase() === symbol.toUpperCase()) {
-  //       const livePrice = message.p || ""; // Use empty string as default value
-  //       callback(livePrice);
-  //     }
-  //   };
-  // };
-
   useEffect(() => {
     if (lastJsonMessage) {
       const message = lastJsonMessage as BinanceResponse;
@@ -91,11 +75,6 @@ export const usePositionData = () => {
       }
     }
   }, [lastJsonMessage]);
-
-  const API_URL =
-    process.env.NEXT_PUBLIC_NODE_ENV === "production"
-      ? process.env.NEXT_PUBLIC_API_URL
-      : process.env.NEXT_PUBLIC_TEST_API_URL;
 
   const urlPosition = () => {
     return fetchData(`${API_URL}/fapi/v2/positionRisk`);

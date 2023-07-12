@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { BinanceResponse, BinanceBookTickerResponse } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
-
+import { API_URL } from "@/util/cryptoConfig";
 
 const fetchPrice = async (symbol: string) => {
   try {
     const response = await axios.get(
-      `https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${symbol.toUpperCase()}`
+      `${API_URL}/fapi/v1/premiumIndex?symbol=${symbol.toUpperCase()}`
     );
     if (response.data && response.data.markPrice) {
       return response.data.markPrice;

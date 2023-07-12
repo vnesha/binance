@@ -26,8 +26,8 @@ export function SelectSymbol({
 
   return (
     <div
-      className={`flex-grow-1 whitespace-nowrap rounded bg-gray-middle px-4 py-[11px] ${
-        disabled ? "text-gray-middle/20" : ""
+      className={`flex-grow-1 whitespace-nowrap rounded bg-gray-middle px-4 py-[13px] ${
+        disabled ? "bg-gray-middle/30" : ""
       }`}
     >
       <Select
